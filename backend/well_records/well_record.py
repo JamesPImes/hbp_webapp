@@ -28,7 +28,7 @@ class WellRecord:
 
     def time_periods_by_cat(self, category) -> list[TimePeriod]:
         """Get a list of time periods that match the specified category."""
-        return self.time_periods.get(category, list[TimePeriod])
+        return self.time_periods.get(category, [])
 
     def __str__(self):
         return f"WellRecord<{self.well_name!r}({self.api_num})>"
