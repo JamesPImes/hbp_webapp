@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 from typing import Callable
@@ -11,9 +10,9 @@ def _default_parse_func(date_str: str) -> (date, date):
     :return:
     """
     try:
-        s1, s2 = date_str.split('::')
-        date1 = datetime.strptime(s1, '%Y-%m-%d').date()
-        date2 = datetime.strptime(s2, '%Y-%m-%d').date()
+        s1, s2 = date_str.split("::")
+        date1 = datetime.strptime(s1, "%Y-%m-%d").date()
+        date2 = datetime.strptime(s2, "%Y-%m-%d").date()
         return (date1, date2)
     except ValueError:
         raise ValueError("Date range must be in the format YYYY-MM-DD::YYYY-MM-DD")
@@ -22,7 +21,9 @@ def _default_parse_func(date_str: str) -> (date, date):
 class TimePeriod:
     """A period of time."""
 
-    def __init__(self, start_date: date, end_date: date, category: str = "default") -> None:
+    def __init__(
+        self, start_date: date, end_date: date, category: str = "default"
+    ) -> None:
         if start_date > end_date:
             raise ValueError("Start date must be earlier than end date.")
         self.start_date = start_date
@@ -40,7 +41,9 @@ class TimePeriod:
         return years * 12 + months
 
     @staticmethod
-    def from_string(date_str: str, parse_func: Callable = None, category: str = None) -> TimePeriod:
+    def from_string(
+        date_str: str, parse_func: Callable = None, category: str = None
+    ) -> TimePeriod:
         """
         Create a ``TimePeriod`` from a string.
 
@@ -67,5 +70,5 @@ class TimePeriod:
 
 
 __all__ = [
-    'TimePeriod',
+    "TimePeriod",
 ]
