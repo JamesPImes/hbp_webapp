@@ -30,6 +30,12 @@ class WellRecord:
         """Get a list of time periods that match the specified category."""
         return self.time_periods.get(category, list[TimePeriod])
 
+    def __str__(self):
+        return f"WellRecord<{self.well_name!r}({self.api_num})>"
+
+    def __repr__(self):
+        return str(self)
+
 
 __all__ = [
     'WellRecord',
