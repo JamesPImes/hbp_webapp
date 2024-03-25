@@ -23,8 +23,12 @@ class WellRecord:
         be categorized into the ``.time_periods`` dict.
         """
         key = str(time_period.category)
-        self.time_periods.setdefault(key, list[TimePeriod])
+        self.time_periods.setdefault(key, [])
         self.time_periods[key].append(time_period)
+
+    def time_periods_by_cat(self, category) -> list[TimePeriod]:
+        """Get a list of time periods that match the specified category."""
+        return self.time_periods.get(category, list[TimePeriod])
 
 
 __all__ = [
