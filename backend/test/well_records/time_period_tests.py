@@ -1,4 +1,3 @@
-
 import unittest
 from datetime import date
 
@@ -28,5 +27,5 @@ class TestTimePeriod(unittest.TestCase):
         self.assertEqual(time_period.duration_in_months(), EXPECTED_MONTHS)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
