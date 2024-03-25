@@ -59,6 +59,12 @@ class TimePeriod:
         date1, date2 = parse_func(date_str)
         return TimePeriod(date1, date2, category)
 
+    def __str__(self):
+        return f"<{self.start_date:%Y-%m-%d}::{self.end_date:%Y-%m-%d}>"
+
+    def __repr__(self):
+        return str(self)
+
 
 __all__ = [
     'TimePeriod',
