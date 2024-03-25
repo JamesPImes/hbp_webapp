@@ -32,6 +32,12 @@ class TimePeriod:
         """Return the duration in days."""
         return (self.end_date - self.start_date).days
 
+    def duration_in_months(self) -> int:
+        """Return the duration in calendar months."""
+        years = self.end_date.year - self.start_date.year
+        months = self.end_date.month - self.start_date.month
+        return years * 12 + months
+
     @staticmethod
     def from_string(date_str: str, parse_func: Callable = None, category: str = None) -> TimePeriod:
         """
