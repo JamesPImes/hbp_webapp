@@ -1,0 +1,2 @@
+Flask~=3.0.2
+git+https://github.com/JamesPImes/og_production_analyzer
