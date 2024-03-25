@@ -15,7 +15,16 @@ class WellRecord:
         self.api_num: str = api_num
         self.well_name: str = well_name
         self.effective_date: date = effective_date
-        self.gaps: list[TimePeriod] = []
+        self.time_periods: dict[str: list[TimePeriod]] = {}
+
+    def register_time_period(self, time_period: TimePeriod) -> None:
+        """
+        Register a time period to this well. Will automatically
+        be categorized into the ``.time_periods`` dict.
+        """
+        key = str(time_period.category)
+        self.time_periods.setdefault(key, list[TimePeriod])
+        self.time_periods[key].append(time_period)
 
 
 __all__ = [
