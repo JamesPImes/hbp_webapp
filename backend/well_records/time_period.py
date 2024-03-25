@@ -14,7 +14,6 @@ def _default_parse_func(date_str: str) -> (date, date):
         s1, s2 = date_str.split('::')
         date1 = datetime.strptime(s1, '%Y-%m-%d').date()
         date2 = datetime.strptime(s2, '%Y-%m-%d').date()
-        assert date1 >= date2, "Dates must be in order."
         return (date1, date2)
     except ValueError:
         raise ValueError("Date range must be in the format YYYY-MM-DD::YYYY-MM-DD")
@@ -24,6 +23,8 @@ class TimePeriod:
     """A period of time."""
 
     def __init__(self, start_date: date, end_date: date, category: str = None) -> None:
+        if start_date > end_date:
+            raise ValueError("Start date must be earlier than end date.")
         self.start_date = start_date
         self.end_date = end_date
         self.category = category
