@@ -1,4 +1,3 @@
-
 import unittest
 from datetime import date
 
@@ -14,11 +13,15 @@ class TestWellRecord(unittest.TestCase):
             api_num="05-0123-45678",
             well_name="test well name",
             first_date=date(2020, 12, 1),
-            last_date=date(2024, 1, 1)
+            last_date=date(2024, 1, 1),
         )
-        time_period_1 = TimePeriod.from_string("2014-01-01::2015-02-01", category="test")
+        time_period_1 = TimePeriod.from_string(
+            "2014-01-01::2015-02-01", category="test"
+        )
         well_record.register_time_period(time_period_1)
-        time_period_2 = TimePeriod.from_string("2019-01-01::2020-12-01", category="test")
+        time_period_2 = TimePeriod.from_string(
+            "2019-01-01::2020-12-01", category="test"
+        )
         well_record.register_time_period(time_period_2)
         # 1 list contains 2 TimePeriod objects.
         number_of_lists = len(well_record.time_periods)
@@ -30,15 +33,21 @@ class TestWellRecord(unittest.TestCase):
             api_num="05-0123-45678",
             well_name="test well name",
             first_date=date(2020, 12, 1),
-            last_date=date(2024, 1, 1)
+            last_date=date(2024, 1, 1),
         )
         cat_name = "test"
-        time_period_1 = TimePeriod.from_string("2014-01-01::2015-02-01", category=cat_name)
+        time_period_1 = TimePeriod.from_string(
+            "2014-01-01::2015-02-01", category=cat_name
+        )
         well_record.register_time_period(time_period_1)
-        time_period_2 = TimePeriod.from_string("2019-01-01::2020-12-01", category=cat_name)
+        time_period_2 = TimePeriod.from_string(
+            "2019-01-01::2020-12-01", category=cat_name
+        )
         well_record.register_time_period(time_period_2)
         # Add to a different category.
-        time_period_3 = TimePeriod.from_string("2021-01-01::2022-12-01", category="other")
+        time_period_3 = TimePeriod.from_string(
+            "2021-01-01::2022-12-01", category="other"
+        )
         well_record.register_time_period(time_period_3)
 
         # The list for "test" category contains 2 TimePeriod objects.
@@ -47,5 +56,5 @@ class TestWellRecord(unittest.TestCase):
         self.assertEqual(number_of_time_periods, 2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
