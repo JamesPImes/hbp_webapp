@@ -22,7 +22,7 @@ def _default_parse_func(date_str: str) -> (date, date):
 class TimePeriod:
     """A period of time."""
 
-    def __init__(self, start_date: date, end_date: date, category: str = None) -> None:
+    def __init__(self, start_date: date, end_date: date, category: str = "default") -> None:
         if start_date > end_date:
             raise ValueError("Start date must be earlier than end date.")
         self.start_date = start_date
