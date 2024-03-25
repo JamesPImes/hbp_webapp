@@ -11,10 +11,12 @@ class WellRecord:
             self,
             api_num: str,
             well_name: str = None,
-            effective_date: date = None) -> None:
+            first_date: date = None,
+            last_date: date = None) -> None:
         self.api_num: str = api_num
         self.well_name: str = well_name
-        self.effective_date: date = effective_date
+        self.first_date: date = first_date
+        self.last_date: date = last_date
         self.time_periods: dict[str: list[TimePeriod]] = {}
 
     def register_time_period(self, time_period: TimePeriod) -> None:

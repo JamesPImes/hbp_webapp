@@ -13,7 +13,8 @@ class TestWellRecord(unittest.TestCase):
         well_record = WellRecord(
             api_num="05-0123-45678",
             well_name="test well name",
-            effective_date=date(2024, 1, 1)
+            first_date=date(2020, 12, 1),
+            last_date=date(2024, 1, 1)
         )
         time_period_1 = TimePeriod.from_string("2014-01-01::2015-02-01", category="test")
         well_record.register_time_period(time_period_1)
@@ -28,7 +29,8 @@ class TestWellRecord(unittest.TestCase):
         well_record = WellRecord(
             api_num="05-0123-45678",
             well_name="test well name",
-            effective_date=date(2024, 1, 1)
+            first_date=date(2020, 12, 1),
+            last_date=date(2024, 1, 1)
         )
         cat_name = "test"
         time_period_1 = TimePeriod.from_string("2014-01-01::2015-02-01", category=cat_name)
