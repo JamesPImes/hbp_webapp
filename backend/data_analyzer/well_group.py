@@ -38,15 +38,20 @@ class WellGroup:
                 last = wr.last_date
         return last
 
-    def find_gaps(self, category, days_tolerance: int = 0) -> DateRangeGroup:
+    def find_gaps(self, category) -> DateRangeGroup:
         overall_first_date = self.find_first_date()
         overall_last_date = self.find_last_date()
+
+        for wr in self.well_records:
+            if category not in wr.registered_categories():
+                raise KeyError(f"Must registered category {category!r} for well {wr}")
 
         gaps = DateRangeGroup()
         for i, wr in enumerate(self.well_records):
             original_dr_group = wr.date_ranges_by_category(category)
-            # Normalize each WellRecord's gaps to the overall first and last dates.
-            #  (i.e., add gaps before earliest records, and after last records, if necessary.)
+            # Normalize each WellRecord's gaps to the overall first and last
+            # dates (i.e., add gaps before earliest records, and after last
+            # records, if necessary.)
             normalized_dr_group = DateRangeGroup(original_dr_group.date_ranges)
             if overall_first_date < wr.first_date:
                 normalized_dr_group.add_date_range(
