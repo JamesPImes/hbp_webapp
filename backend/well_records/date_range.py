@@ -136,13 +136,9 @@ class DateRange:
 
         elif self.encompasses(other, days_tolerance=0):
             # Middle cut, results in 2 new date ranges.
-            start1 = self.start_date
-            end1 = other.start_date - timedelta(days=1)
-            dr1 = DateRange(start1, end1)
+            dr1 = DateRange(self.start_date, other.start_date - timedelta(days=1))
             drs.append(dr1)
-            start2 = other.end_date + timedelta(days=1)
-            end2 = self.end_date
-            dr2 = DateRange(start2, end2)
+            dr2 = DateRange(other.end_date + timedelta(days=1), self.end_date)
             drs.append(dr2)
 
         # One end or the other is trimmed, but only 1 resulting date range.
