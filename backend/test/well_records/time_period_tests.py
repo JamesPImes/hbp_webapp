@@ -1,7 +1,7 @@
 import unittest
 from datetime import date
 
-from backend.well_records.time_period import TimePeriod
+from backend.well_records.time_period import TimePeriod, TimePeriodGroup
 
 
 START_DATE = date(2014, 1, 1)
@@ -134,6 +134,20 @@ class TestTimePeriod(unittest.TestCase):
         subtracted_tp2 = result[1]
         self.assertEqual(subtracted_tp2.start_date, date(2016, 1, 1))
         self.assertEqual(subtracted_tp2.end_date, date(2020, 12, 31))
+
+
+class TestTimePeriodGroup(unittest.TestCase):
+    def test_merge_all(self):
+        tp1 = TimePeriod(start_date=date(2010, 1, 1), end_date=date(2011, 12, 31))
+        tp2 = TimePeriod(start_date=date(2015, 1, 1), end_date=date(2017, 12, 31))
+        tp3 = TimePeriod(start_date=date(2011, 1, 1), end_date=date(2012, 12, 31))
+        tps = [tp1, tp2, tp3]
+        tpg = TimePeriodGroup(time_periods=tps)
+        tpg.merge_all()
+        self.assertEqual(len(tpg.time_periods), 2)
+
+    def test_subtract_from_all(self):
+        pass
 
 
 if __name__ == "__main__":

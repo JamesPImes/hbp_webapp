@@ -158,7 +158,27 @@ class TimePeriodGroup:
     def __init__(
         self, time_periods: list[TimePeriod] = None, category: str = DEFAULT_CATEGORY
     ) -> None:
-            pass
+        self.category = category
+        if time_periods is None:
+            time_periods = []
+        self.time_periods: list[TimePeriod] = time_periods
+
+    def sort(self) -> None:
+        self.time_periods.sort(key=lambda t: t.start_date)
+        self.time_periods.sort(key=lambda t: t.end_date)
+
+    def merge_all(self, days_tolerance: int = 0) -> None:
+        self.sort()
+        tps = self.time_periods
+        new_tps = []
+        while len(tps) != len(new_tps):
+            new_tps = []
+            for i in range(0, len(tps), 2):
+                j = min(i + 1, len(tps) - 1)
+                merged = tps[i].merge_with(tps[j], days_tolerance)
+                new_tps.extend(merged)
+            tps = new_tps
+        self.time_periods = new_tps
 
 
 __all__ = [
