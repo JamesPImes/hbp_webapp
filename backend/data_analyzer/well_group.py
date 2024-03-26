@@ -39,6 +39,23 @@ class WellGroup:
         return last
 
     def find_gaps(self, category) -> DateRangeGroup:
+        """
+        Find gaps of the specified ``category`` across all well records.
+        This takes a "swiss cheese" approach -- i.e., if one well has a
+        gap from 1/1/2001 to 1/1/2002 and the only other well only has a
+        gap between 7/1/2001 and 7/1/2002, the only remaining gap will
+        be identified as 7/1/2001 - 1/1/2002.
+
+        .. note::
+           Ensure that the specified ``category`` has been registered
+           for each well. Otherwise, this method will raise a
+           ``KeyError``. (This ensures that missing data for one well
+           does not result in the assumption that no gaps exist for that
+           well.)
+
+        :param category: The category of date ranges to find gaps for.
+        :return:
+        """
         overall_first_date = self.find_first_date()
         overall_last_date = self.find_last_date()
 
