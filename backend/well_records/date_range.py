@@ -12,6 +12,7 @@ def _default_parse_func(date_str: str) -> (date, date):
     :param date_str: "2014-01-01::2015-01-09"
     :return:
     """
+    # TODO: Move this to a handler class.
     try:
         s1, s2 = date_str.split("::")
         date1 = datetime.strptime(s1, "%Y-%m-%d").date()
