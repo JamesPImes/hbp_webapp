@@ -38,15 +38,6 @@ class WellGroup:
                 last = wr.last_date
         return last
 
-    def find_inverse_time_periods(self, category):
-        overall_first_date = self.find_first_date()
-        overall_last_date = self.find_last_date()
-        all_tps = []
-        for wr in self.well_records:
-            sub_first = wr.first_date
-            sub_lsat = wr.last_date
-            tps = wr.date_ranges_by_category(category)
-
     def find_gaps(self, category, days_tolerance: int = 0) -> DateRangeGroup:
         overall_first_date = self.find_first_date()
         overall_last_date = self.find_last_date()
