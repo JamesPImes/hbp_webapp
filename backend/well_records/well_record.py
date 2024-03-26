@@ -28,6 +28,26 @@ class WellRecord:
         """
         self.date_ranges.setdefault(category, DateRangeGroup())
         self.date_ranges[category].add_date_range(date_range)
+        return None
+
+    def register_empty_category(self, category: str) -> None:
+        """
+        Register the specified ``category`` without adding any date
+        ranges to it. If the category already exists, this will have no
+        effect.
+
+        :param category:
+        :return:
+        """
+        self.date_ranges.setdefault(category, DateRangeGroup())
+        return None
+
+    def registered_categories(self) -> list[str]:
+        """
+        Get a list of categories that have been registered for this
+        well.
+        """
+        return list(self.date_ranges.keys())
 
     def date_ranges_by_category(self, category) -> DateRangeGroup:
         """Get the ``DateRangeGroup`` for the specified ``category``."""
