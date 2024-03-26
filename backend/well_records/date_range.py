@@ -172,6 +172,12 @@ class DateRangeGroup:
         self.date_ranges = new_drs
         self.sort()
 
+    def __str__(self):
+        return str(self.date_ranges)
+
+    def __repr__(self):
+        return str(self)
+
 
 __all__ = [
     "DateRange",
