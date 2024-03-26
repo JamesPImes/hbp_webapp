@@ -147,7 +147,14 @@ class TestTimePeriodGroup(unittest.TestCase):
         self.assertEqual(len(tpg.time_periods), 2)
 
     def test_subtract_from_all(self):
-        pass
+        tp1 = TimePeriod(start_date=date(2010, 1, 1), end_date=date(2011, 12, 31))
+        tp2 = TimePeriod(start_date=date(2015, 1, 1), end_date=date(2017, 12, 31))
+        tp3 = TimePeriod(start_date=date(2011, 1, 1), end_date=date(2012, 12, 31))
+        tps = [tp1, tp2, tp3]
+        tpg = TimePeriodGroup(time_periods=tps)
+        tp4 = TimePeriod(start_date=date(2010, 10, 1), end_date=date(2013, 12, 31))
+        tpg.subtract_from_all(tp4)
+        self.assertEqual(len(tpg.time_periods), 2)
 
 
 if __name__ == "__main__":

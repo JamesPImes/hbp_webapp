@@ -180,6 +180,14 @@ class TimePeriodGroup:
             tps = new_tps
         self.time_periods = new_tps
 
+    def subtract_from_all(self, time_period: TimePeriod) -> None:
+        new_tps = []
+        for tp in self.time_periods:
+            subtracted = tp.subtract(time_period)
+            new_tps.extend(subtracted)
+        self.time_periods = new_tps
+        self.sort()
+
 
 __all__ = [
     "TimePeriod",
