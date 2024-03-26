@@ -3,7 +3,7 @@ from datetime import date
 
 from backend.data_analyzer.well_group import WellGroup
 from backend.well_records.well_record import WellRecord
-from backend.well_records.time_period import TimePeriod
+from backend.well_records.date_range import DateRange
 
 
 class TestWellGroup(unittest.TestCase):
@@ -97,14 +97,14 @@ class TestWellGroup(unittest.TestCase):
             first_date=date(2001, 1, 1),
             last_date=date(2020, 5, 31),
         )
-        tp1 = TimePeriod(
+        tp1 = DateRange(
             start_date=date(2002, 1, 1), end_date=date(2003, 12, 31), category="test"
         )
-        tp2 = TimePeriod(
+        tp2 = DateRange(
             start_date=date(2002, 1, 1), end_date=date(2003, 12, 31), category="ignore"
         )
-        wr1.register_time_period(tp1)
-        wr1.register_time_period(tp2)
+        wr1.register_date_range(tp1)
+        wr1.register_date_range(tp2)
 
         wr2 = WellRecord(
             api_num="05-123-98765",
@@ -112,17 +112,17 @@ class TestWellGroup(unittest.TestCase):
             first_date=date(2019, 11, 1),
             last_date=date(2023, 5, 1),
         )
-        tp3 = TimePeriod(
+        tp3 = DateRange(
             start_date=date(2002, 5, 1), end_date=date(2003, 11, 30), category="test"
         )
-        wr2.register_time_period(tp3)
+        wr2.register_date_range(tp3)
 
         wg = WellGroup()
         wg.add_well_record(wr1)
         wg.add_well_record(wr2)
 
         gaps = wg.find_gaps(category="test")
-        tp_expected = TimePeriod(
+        tp_expected = DateRange(
             start_date=date(2002, 1, 1), end_date=date(2002, 4, 30), category="test"
         )
         # Only 1 gap remains.
@@ -160,14 +160,14 @@ class TestWellGroup(unittest.TestCase):
             first_date=first_date,
             last_date=last_date,
         )
-        tp1 = TimePeriod(
+        tp1 = DateRange(
             start_date=date(2002, 1, 1), end_date=date(2003, 12, 31), category="test"
         )
-        tp2 = TimePeriod(
+        tp2 = DateRange(
             start_date=date(2005, 1, 1), end_date=date(2006, 12, 31), category="ignore"
         )
-        wr.register_time_period(tp1)
-        wr.register_time_period(tp2)
+        wr.register_date_range(tp1)
+        wr.register_date_range(tp2)
 
         wg = WellGroup()
         wg.add_well_record(wr)
@@ -175,12 +175,12 @@ class TestWellGroup(unittest.TestCase):
         inverse_tps = wg.find_inverse_time_periods(category="test")
         expected_cat = "test-inverse"
         expected = [
-            TimePeriod(
+            DateRange(
                 start_date=first_date,
                 end_date=date(2001, 12, 31),
                 category=expected_cat,
             ),
-            TimePeriod(
+            DateRange(
                 start_date=date(2004, 1, 1), end_date=last_date, category=expected_cat
             ),
         ]

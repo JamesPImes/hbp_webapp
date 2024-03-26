@@ -1,6 +1,6 @@
 from datetime import date
 
-from .time_period import TimePeriod
+from .date_range import DateRange
 
 
 class WellRecord:
@@ -17,20 +17,20 @@ class WellRecord:
         self.well_name: str = well_name
         self.first_date: date = first_date
         self.last_date: date = last_date
-        self.time_periods: dict[str : list[TimePeriod]] = {}
+        self.date_ranges: dict[str: list[DateRange]] = {}
 
-    def register_time_period(self, time_period: TimePeriod) -> None:
+    def register_date_range(self, date_range: DateRange) -> None:
         """
         Register a time period to this well. Will automatically
-        be categorized into the ``.time_periods`` dict.
+        be categorized into the ``.date_ranges`` dict.
         """
-        key = str(time_period.category)
-        self.time_periods.setdefault(key, [])
-        self.time_periods[key].append(time_period)
+        key = str(date_range.category)
+        self.date_ranges.setdefault(key, [])
+        self.date_ranges[key].append(date_range)
 
-    def time_periods_by_cat(self, category) -> list[TimePeriod]:
+    def date_ranges_by_category(self, category) -> list[DateRange]:
         """Get a list of time periods that match the specified category."""
-        return self.time_periods.get(category, [])
+        return self.date_ranges.get(category, [])
 
     def __str__(self):
         well_name = self.well_name

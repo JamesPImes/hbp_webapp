@@ -21,8 +21,8 @@ def _default_parse_func(date_str: str) -> (date, date):
         raise ValueError("Date range must be in the format YYYY-MM-DD::YYYY-MM-DD")
 
 
-class TimePeriod:
-    """A period of time."""
+class DateRange:
+    """A period of time, represented by start and end dates (inclusive)."""
 
     def __init__(
         self, start_date: date, end_date: date, category: str = DEFAULT_CATEGORY
@@ -46,35 +46,35 @@ class TimePeriod:
     @staticmethod
     def from_string(
         date_str: str, parse_func: Callable = None, category: str = None
-    ) -> TimePeriod:
+    ) -> DateRange:
         """
-        Create a ``TimePeriod`` from a string.
+        Create a ``DateRange`` from a string.
 
         Default assumes the format ``"YYYY-MM-DD::YYYY-MM-DD"``. If a different format
         is used, ``parse_func`` must also be provided, being a function that will
         split the string into two ``datetime.date`` objects.
 
-        :param date_str: The string to parse into a ``TimePeriod``.
+        :param date_str: The string to parse into a ``DateRange``.
         :param parse_func: The function to split a string into two ``datetime.date``
          objects. (Only required if ``date_str`` is not in the expected format.)
-        :param category: (Optional) The category of this ``TimePeriod`` (e.g., "shut-in").
-        :return: The new ``TimePeriod`` object.
+        :param category: (Optional) The category of this ``DateRange`` (e.g., "shut-in").
+        :return: The new ``DateRange`` object.
         """
         if parse_func is None:
             parse_func = _default_parse_func
         date1, date2 = parse_func(date_str)
-        return TimePeriod(date1, date2, category)
+        return DateRange(date1, date2, category)
 
-    def is_contiguous_with(self, other: TimePeriod, days_tolerance: int = 1) -> bool:
+    def is_contiguous_with(self, other: DateRange, days_tolerance: int = 1) -> bool:
         """
-        Check if another ``TimePeriod`` is contiguous with this one,
+        Check if another ``DateRange`` is contiguous with this one,
         or if the two overlap.
 
-        :param other: The other ``TimePeriod`` to check.
-        :param days_tolerance: If two ``TimePeriod`` objects do
+        :param other: The other ``DateRange`` to check.
+        :param days_tolerance: If two ``DateRange`` objects do
          not overlap (strictly speaking) but are within this
          specified number of days, they may be considered as
-         contiguous. Defaults to 1 (i.e., if one ``TimePeriod`` ends
+         contiguous. Defaults to 1 (i.e., if one ``DateRange`` ends
          on one day and the other begins on the next day, they are
          considered contiguous).
         """
@@ -92,60 +92,60 @@ class TimePeriod:
             return True
         return False
 
-    def encompasses(self, other: TimePeriod, days_tolerance: int = 1) -> bool:
+    def encompasses(self, other: DateRange, days_tolerance: int = 1) -> bool:
         return (
             self.start_date - timedelta(days=days_tolerance) < other.start_date
             and self.end_date + timedelta(days=days_tolerance) > other.end_date
         )
 
     def merge_with(
-        self, other: TimePeriod, days_tolerance: int = 1
-    ) -> list[TimePeriod]:
+        self, other: DateRange, days_tolerance: int = 1
+    ) -> list[DateRange]:
         if not self.is_contiguous_with(other, days_tolerance):
             return [self, other]
         start = min(self.start_date, other.start_date)
         end = max(self.end_date, other.end_date)
-        return [TimePeriod(start, end, category=self.category)]
+        return [DateRange(start, end, category=self.category)]
 
-    def subtract(self, other: TimePeriod) -> list[TimePeriod]:
-        tps = []
+    def subtract(self, other: DateRange) -> list[DateRange]:
+        drs = []
         if not self.is_contiguous_with(other, days_tolerance=0):
             # No overlap, so nothing to cut out.
-            tps = [self]
+            drs = [self]
 
         elif other.encompasses(self, days_tolerance=0):
-            # Complete overalp, so deleting this entire time period.
+            # Complete overlap, so deleting this entire date range.
             pass
 
         elif self.encompasses(other, days_tolerance=0):
-            # Middle cut, results in 2 new time periods.
+            # Middle cut, results in 2 new date ranges.
             start1 = self.start_date
             end1 = other.start_date - timedelta(days=1)
-            tp1 = TimePeriod(start1, end1, category=self.category)
-            tps.append(tp1)
+            dr1 = DateRange(start1, end1, category=self.category)
+            drs.append(dr1)
             start2 = other.end_date + timedelta(days=1)
             end2 = self.end_date
-            tp2 = TimePeriod(start2, end2, category=self.category)
-            tps.append(tp2)
+            dr2 = DateRange(start2, end2, category=self.category)
+            drs.append(dr2)
 
-        # One end or the other is trimmed, but only 1 resulting time period.
+        # One end or the other is trimmed, but only 1 resulting date range.
         elif other.start_date < self.start_date:
             # Trimming the front end.
-            tp = TimePeriod(
+            dr = DateRange(
                 other.end_date + timedelta(days=1),
                 self.end_date,
                 category=self.category,
             )
-            tps.append(tp)
+            drs.append(dr)
         else:
             # Trimming the back end.
-            tp = TimePeriod(
+            dr = DateRange(
                 self.start_date,
                 other.start_date - timedelta(days=1),
                 category=self.category,
             )
-            tps.append(tp)
-        return tps
+            drs.append(dr)
+        return drs
 
     def __str__(self):
         return f"<{self.start_date:%Y-%m-%d}::{self.end_date:%Y-%m-%d}>"
@@ -154,42 +154,42 @@ class TimePeriod:
         return str(self)
 
 
-class TimePeriodGroup:
+class DateRangeGroup:
     def __init__(
-        self, time_periods: list[TimePeriod] = None, category: str = DEFAULT_CATEGORY
+        self, date_ranges: list[DateRange] = None, category: str = DEFAULT_CATEGORY
     ) -> None:
         self.category = category
-        if time_periods is None:
-            time_periods = []
-        self.time_periods: list[TimePeriod] = time_periods
+        if date_ranges is None:
+            date_ranges = []
+        self.date_ranges: list[DateRange] = date_ranges
 
     def sort(self) -> None:
-        self.time_periods.sort(key=lambda t: t.start_date)
-        self.time_periods.sort(key=lambda t: t.end_date)
+        self.date_ranges.sort(key=lambda t: t.start_date)
+        self.date_ranges.sort(key=lambda t: t.end_date)
 
     def merge_all(self, days_tolerance: int = 0) -> None:
         self.sort()
-        tps = self.time_periods
-        new_tps = []
-        while len(tps) != len(new_tps):
-            new_tps = []
-            for i in range(0, len(tps), 2):
-                j = min(i + 1, len(tps) - 1)
-                merged = tps[i].merge_with(tps[j], days_tolerance)
-                new_tps.extend(merged)
-            tps = new_tps
-        self.time_periods = new_tps
+        drs = self.date_ranges
+        new_drs = []
+        while len(drs) != len(new_drs):
+            new_drs = []
+            for i in range(0, len(drs), 2):
+                j = min(i + 1, len(drs) - 1)
+                merged = drs[i].merge_with(drs[j], days_tolerance)
+                new_drs.extend(merged)
+            drs = new_drs
+        self.date_ranges = new_drs
 
-    def subtract_from_all(self, time_period: TimePeriod) -> None:
-        new_tps = []
-        for tp in self.time_periods:
-            subtracted = tp.subtract(time_period)
-            new_tps.extend(subtracted)
-        self.time_periods = new_tps
+    def subtract_from_all(self, time_period: DateRange) -> None:
+        new_drs = []
+        for dr in self.date_ranges:
+            subtracted = dr.subtract(time_period)
+            new_drs.extend(subtracted)
+        self.date_ranges = new_drs
         self.sort()
 
 
 __all__ = [
-    "TimePeriod",
-    "TimePeriodGroup",
+    "DateRange",
+    "DateRangeGroup",
 ]

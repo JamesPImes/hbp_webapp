@@ -1,7 +1,7 @@
 from datetime import date
 
 from backend.well_records.well_record import WellRecord
-from backend.well_records.time_period import TimePeriod
+from backend.well_records.date_range import DateRange
 
 
 class WellGroup:
@@ -38,7 +38,17 @@ class WellGroup:
                 last = wr.last_date
         return last
 
-    def find_gaps(self, category) -> list[TimePeriod]:
+    def find_inverse_time_periods(self, category):
+        overall_first_date = self.find_first_date()
+        overall_last_date = self.find_last_date()
+        all_tps = []
+        for wr in self.well_records:
+            sub_first = wr.first_date
+            sub_lsat = wr.last_date
+            tps = wr.date_ranges_by_category(category)
+
+
+    def find_gaps(self, category) -> list[DateRange]:
         pass
 
 
