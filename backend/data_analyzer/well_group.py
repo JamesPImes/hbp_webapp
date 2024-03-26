@@ -12,7 +12,13 @@ class WellGroup:
         self.well_records.append(well_record)
 
     def find_first_date(self) -> date:
-        pass
+        first = None
+        for wr in self.well_records:
+            if first is None:
+                first = wr.first_date
+            elif wr.first_date is not None and wr.first_date < first:
+                first = wr.first_date
+        return first
 
     def find_last_date(self) -> date:
         pass
