@@ -1,7 +1,7 @@
 from datetime import date
 
 from backend.well_records.well_record import WellRecord
-from backend.well_records.date_range import DateRange
+from backend.well_records.date_range import DateRange, DateRangeGroup
 
 
 class WellGroup:
@@ -47,9 +47,25 @@ class WellGroup:
             sub_lsat = wr.last_date
             tps = wr.date_ranges_by_category(category)
 
+    def find_gaps(self, category, days_tolerance: int = 0) -> DateRangeGroup:
+        overall_first_date = self.find_first_date()
+        overall_last_date = self.find_last_date()
+        # TODO: Normalize each WellRecord's gaps to the overall first and last dates.
+        #  (i.e., add gaps before earliest records, and after last records, if necessary.)
+        ...
 
-    def find_gaps(self, category) -> list[DateRange]:
-        pass
+        gaps = DateRangeGroup()
+        for i, wr in enumerate(self.well_records):
+            dr_group = wr.date_ranges_by_category(category)
+            if i == 0:
+                # Populate the initial gaps with the first well's date ranges.
+                gaps = dr_group
+                continue
+            if len(gaps.date_ranges) == 0:
+                # Once we've removed all date ranges, there can never be future gaps.
+                break
+            gaps.find_all_overlaps(dr_group)
+        return gaps
 
 
 __all__ = [
