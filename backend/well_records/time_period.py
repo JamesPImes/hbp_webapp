@@ -62,6 +62,12 @@ class TimePeriod:
         date1, date2 = parse_func(date_str)
         return TimePeriod(date1, date2, category)
 
+    def merge_with(self, other: TimePeriod) -> TimePeriod:
+        pass
+
+    def subtract_out(self, other: TimePeriod) -> TimePeriod:
+        pass
+
     def __str__(self):
         return f"<{self.start_date:%Y-%m-%d}::{self.end_date:%Y-%m-%d}>"
 
