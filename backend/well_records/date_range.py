@@ -199,6 +199,7 @@ class DateRangeGroup:
                 if overlap is not None:
                     new_drs.append(overlap)
         new_group.date_ranges = new_drs
+        new_group.merge_all()
         return new_group
 
     def __str__(self):
@@ -206,6 +207,15 @@ class DateRangeGroup:
 
     def __repr__(self):
         return str(self)
+
+    def __iter__(self):
+        return iter(self.date_ranges)
+
+    def __getitem__(self, item):
+        return self.date_ranges[item]
+
+    def __len__(self):
+        return len(self.date_ranges)
 
 
 __all__ = [
