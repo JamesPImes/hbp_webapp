@@ -129,6 +129,21 @@ class DateRange:
             drs.append(dr)
         return drs
 
+    def find_overlap(self, other: DateRange) -> DateRange | None:
+        dr = None
+        if not self.is_contiguous_with(other, days_tolerance=0):
+            pass
+        elif other.encompasses(self, days_tolerance=0):
+            dr = self
+        elif self.encompasses(other, days_tolerance=0):
+            dr = other
+        # One end or the other is trimmed, but only 1 resulting date range.
+        elif other.start_date < self.start_date:
+            dr = DateRange(self.start_date, other.end_date)
+        else:
+            dr = DateRange(other.start_date, self.end_date)
+        return dr
+
     def __str__(self):
         return f"<{self.start_date:%Y-%m-%d}::{self.end_date:%Y-%m-%d}>"
 
@@ -171,6 +186,20 @@ class DateRangeGroup:
             new_drs.extend(subtracted)
         self.date_ranges = new_drs
         self.sort()
+
+    def find_all_overlaps(self, other: DateRangeGroup) -> DateRangeGroup:
+        new_group = DateRangeGroup()
+        if len(self.date_ranges) == 0 or len(other.date_ranges) == 0:
+            return new_group
+
+        new_drs = []
+        for dr_b in other.date_ranges:
+            for dr_a in self.date_ranges:
+                overlap = dr_a.find_overlap(dr_b)
+                if overlap is not None:
+                    new_drs.append(overlap)
+        new_group.date_ranges = new_drs
+        return new_group
 
     def __str__(self):
         return str(self.date_ranges)
