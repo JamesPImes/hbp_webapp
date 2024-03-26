@@ -4,9 +4,6 @@ from typing import Callable
 from datetime import date, datetime, timedelta
 
 
-DEFAULT_CATEGORY = "default"
-
-
 def _default_parse_func(date_str: str) -> (date, date):
     """
     :param date_str: "2014-01-01::2015-01-09"
@@ -25,14 +22,11 @@ def _default_parse_func(date_str: str) -> (date, date):
 class DateRange:
     """A period of time, represented by start and end dates (inclusive)."""
 
-    def __init__(
-        self, start_date: date, end_date: date, category: str = DEFAULT_CATEGORY
-    ) -> None:
+    def __init__(self, start_date: date, end_date: date) -> None:
         if start_date > end_date:
             raise ValueError("Start date must be earlier than end date.")
         self.start_date: date = start_date
         self.end_date: date = end_date
-        self.category: str = category
 
     def duration_in_days(self) -> int:
         """Return the duration in days, including the first and last."""
@@ -45,9 +39,7 @@ class DateRange:
         return years * 12 + months + 1
 
     @staticmethod
-    def from_string(
-        date_str: str, parse_func: Callable = None, category: str = None
-    ) -> DateRange:
+    def from_string(date_str: str, parse_func: Callable = None) -> DateRange:
         """
         Create a ``DateRange`` from a string.
 
@@ -58,13 +50,12 @@ class DateRange:
         :param date_str: The string to parse into a ``DateRange``.
         :param parse_func: The function to split a string into two ``datetime.date``
          objects. (Only required if ``date_str`` is not in the expected format.)
-        :param category: (Optional) The category of this ``DateRange`` (e.g., "shut-in").
         :return: The new ``DateRange`` object.
         """
         if parse_func is None:
             parse_func = _default_parse_func
         date1, date2 = parse_func(date_str)
-        return DateRange(date1, date2, category)
+        return DateRange(date1, date2)
 
     def is_contiguous_with(self, other: DateRange, days_tolerance: int = 1) -> bool:
         """
@@ -99,14 +90,12 @@ class DateRange:
             and self.end_date + timedelta(days=days_tolerance) > other.end_date
         )
 
-    def merge_with(
-        self, other: DateRange, days_tolerance: int = 1
-    ) -> list[DateRange]:
+    def merge_with(self, other: DateRange, days_tolerance: int = 1) -> list[DateRange]:
         if not self.is_contiguous_with(other, days_tolerance):
             return [self, other]
         start = min(self.start_date, other.start_date)
         end = max(self.end_date, other.end_date)
-        return [DateRange(start, end, category=self.category)]
+        return [DateRange(start, end)]
 
     def subtract(self, other: DateRange) -> list[DateRange]:
         drs = []
@@ -122,29 +111,21 @@ class DateRange:
             # Middle cut, results in 2 new date ranges.
             start1 = self.start_date
             end1 = other.start_date - timedelta(days=1)
-            dr1 = DateRange(start1, end1, category=self.category)
+            dr1 = DateRange(start1, end1)
             drs.append(dr1)
             start2 = other.end_date + timedelta(days=1)
             end2 = self.end_date
-            dr2 = DateRange(start2, end2, category=self.category)
+            dr2 = DateRange(start2, end2)
             drs.append(dr2)
 
         # One end or the other is trimmed, but only 1 resulting date range.
         elif other.start_date < self.start_date:
             # Trimming the front end.
-            dr = DateRange(
-                other.end_date + timedelta(days=1),
-                self.end_date,
-                category=self.category,
-            )
+            dr = DateRange(other.end_date + timedelta(days=1), self.end_date)
             drs.append(dr)
         else:
             # Trimming the back end.
-            dr = DateRange(
-                self.start_date,
-                other.start_date - timedelta(days=1),
-                category=self.category,
-            )
+            dr = DateRange(self.start_date, other.start_date - timedelta(days=1))
             drs.append(dr)
         return drs
 
@@ -156,10 +137,7 @@ class DateRange:
 
 
 class DateRangeGroup:
-    def __init__(
-        self, date_ranges: list[DateRange] = None, category: str = DEFAULT_CATEGORY
-    ) -> None:
-        self.category = category
+    def __init__(self, date_ranges: list[DateRange] = None) -> None:
         if date_ranges is None:
             date_ranges = []
         self.date_ranges: list[DateRange] = date_ranges
