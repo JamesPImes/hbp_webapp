@@ -164,10 +164,10 @@ class DateRangeGroup:
             drs = new_drs
         self.date_ranges = new_drs
 
-    def subtract_from_all(self, time_period: DateRange) -> None:
+    def subtract_from_all(self, date_range: DateRange) -> None:
         new_drs = []
         for dr in self.date_ranges:
-            subtracted = dr.subtract(time_period)
+            subtracted = dr.subtract(date_range)
             new_drs.extend(subtracted)
         self.date_ranges = new_drs
         self.sort()
