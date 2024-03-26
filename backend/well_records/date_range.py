@@ -142,6 +142,11 @@ class DateRangeGroup:
             date_ranges = []
         self.date_ranges: list[DateRange] = date_ranges
 
+    def add_date_range(self, date_range: DateRange) -> None:
+        if not isinstance(DateRange):
+            raise TypeError("May only add DateRange objects")
+        self.date_ranges.append(date_range)
+
     def sort(self) -> None:
         self.date_ranges.sort(key=lambda t: t.start_date)
         self.date_ranges.sort(key=lambda t: t.end_date)
