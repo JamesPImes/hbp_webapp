@@ -21,7 +21,13 @@ class WellGroup:
         return first
 
     def find_last_date(self) -> date:
-        pass
+        last = None
+        for wr in self.well_records:
+            if last is None:
+                last = wr.last_date
+            elif wr.last_date is not None and wr.last_date > last:
+                last = wr.last_date
+        return last
 
     def find_gaps(self, category) -> list[TimePeriod]:
         pass

@@ -54,7 +54,41 @@ class TestWellGroup(unittest.TestCase):
         self.assertEqual(wg.find_first_date(), None)
 
     def test_find_last_date(self):
-        pass
+        wg = WellGroup()
+        expected_last_date = date(2023, 5, 1)
+        wr1 = WellRecord(
+            api_num="05-123-45678",
+            well_name="test well #1",
+            first_date=date(2001, 1, 1),
+            last_date=date(2020, 5, 1),
+        )
+        wr2 = WellRecord(
+            api_num="05-123-98765",
+            well_name="test well #2",
+            first_date=date(2019, 11, 1),
+            last_date=expected_last_date,
+        )
+        wg.add_well_record(wr1)
+        wg.add_well_record(wr2)
+        self.assertEqual(wg.find_last_date(), expected_last_date)
+
+    def test_find_last_date_none(self):
+        wg = WellGroup()
+        wr1 = WellRecord(
+            api_num="05-123-45678",
+            well_name="test well #1",
+            first_date=None,
+            last_date=None,
+        )
+        wr2 = WellRecord(
+            api_num="05-123-98765",
+            well_name="test well #2",
+            first_date=None,
+            last_date=None,
+        )
+        wg.add_well_record(wr1)
+        wg.add_well_record(wr2)
+        self.assertEqual(wg.find_last_date(), None)
 
     def test_find_gaps(self):
         pass
