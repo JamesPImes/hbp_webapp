@@ -6,8 +6,8 @@ from backend.well_records.time_period import TimePeriod
 
 START_DATE = date(2014, 1, 1)
 END_DATE = date(2015, 2, 1)
-EXPECTED_DAYS = 396
-EXPECTED_MONTHS = 13
+EXPECTED_DAYS = 397
+EXPECTED_MONTHS = 14
 DATE_RANGE_AS_STRING = "2014-01-01::2015-02-01"
 CATEGORY = "TEST"
 

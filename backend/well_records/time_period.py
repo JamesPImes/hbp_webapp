@@ -31,14 +31,14 @@ class TimePeriod:
         self.category = category
 
     def duration_in_days(self) -> int:
-        """Return the duration in days."""
-        return (self.end_date - self.start_date).days
+        """Return the duration in days, including the first and last."""
+        return (self.end_date - self.start_date).days + 1
 
     def duration_in_months(self) -> int:
-        """Return the duration in calendar months."""
+        """Return the duration in calendar months, including the first and last."""
         years = self.end_date.year - self.start_date.year
         months = self.end_date.month - self.start_date.month
-        return years * 12 + months
+        return years * 12 + months + 1
 
     @staticmethod
     def from_string(
