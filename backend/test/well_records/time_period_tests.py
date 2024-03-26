@@ -26,6 +26,26 @@ class TestTimePeriod(unittest.TestCase):
         time_period = TimePeriod.from_string(DATE_RANGE_AS_STRING, category=CATEGORY)
         self.assertEqual(time_period.duration_in_months(), EXPECTED_MONTHS)
 
+    def test_is_contiguous_with(self):
+        tp1 = TimePeriod(
+            start_date=date(2014, 1, 1), end_date=date(2015, 1, 31), category=CATEGORY
+        )
+        tp2 = TimePeriod(
+            start_date=date(2015, 2, 1), end_date=date(2015, 5, 31), category=CATEGORY
+        )
+        self.assertTrue(tp1.is_contiguous_with(tp2))
+        self.assertTrue(tp2.is_contiguous_with(tp1))
+
+    def test_is_contiguous_with_false(self):
+        tp1 = TimePeriod(
+            start_date=date(2014, 1, 1), end_date=date(2015, 1, 31), category=CATEGORY
+        )
+        tp2 = TimePeriod(
+            start_date=date(2015, 3, 1), end_date=date(2015, 5, 31), category=CATEGORY
+        )
+        self.assertFalse(tp1.is_contiguous_with(tp2))
+        self.assertFalse(tp2.is_contiguous_with(tp1))
+
     def test_merge_with(self):
         tp1 = TimePeriod(
             start_date=date(2014, 1, 1), end_date=date(2015, 1, 31), category=CATEGORY

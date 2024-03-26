@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Callable
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 
 def _default_parse_func(date_str: str) -> (date, date):
@@ -26,9 +26,9 @@ class TimePeriod:
     ) -> None:
         if start_date > end_date:
             raise ValueError("Start date must be earlier than end date.")
-        self.start_date = start_date
-        self.end_date = end_date
-        self.category = category
+        self.start_date: date = start_date
+        self.end_date: date = end_date
+        self.category: str = category
 
     def duration_in_days(self) -> int:
         """Return the duration in days, including the first and last."""
@@ -61,6 +61,33 @@ class TimePeriod:
             parse_func = _default_parse_func
         date1, date2 = parse_func(date_str)
         return TimePeriod(date1, date2, category)
+
+    def is_contiguous_with(self, other: TimePeriod, days_tolerance: int = 1) -> bool:
+        """
+        Check if another ``TimePeriod`` is contiguous with this one,
+        or if the two overlap.
+
+        :param other: The other ``TimePeriod`` to check.
+        :param days_tolerance: If two ``TimePeriod`` objects do
+         not overlap (strictly speaking) but are within this
+         specified number of days, they may be considered as
+         contiguous. Defaults to 1 (i.e., if one ``TimePeriod`` ends
+         on one day and the other begins on the next day, they are
+         considered contiguous).
+        """
+        if (
+            self.start_date - timedelta(days=days_tolerance)
+            <= other.end_date
+            <= self.end_date + timedelta(days=days_tolerance)
+        ):
+            return True
+        elif (
+            other.start_date - timedelta(days=days_tolerance)
+            <= self.end_date
+            <= other.end_date + timedelta(days=days_tolerance)
+        ):
+            return True
+        return False
 
     def merge_with(self, other: TimePeriod) -> TimePeriod:
         pass
