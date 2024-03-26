@@ -210,7 +210,7 @@ class DateRangeGroup:
         output_group = DateRangeGroup()
         for dr in self:
             if dr.duration_in_days() >= days:
-                output_group.date_ranges.append()
+                output_group.date_ranges.append(dr)
         return output_group
 
     def __str__(self):
