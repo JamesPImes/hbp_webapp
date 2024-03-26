@@ -202,6 +202,17 @@ class DateRangeGroup:
         new_group.merge_all()
         return new_group
 
+    def get_date_ranges_of_minimum_duration(self, days: int) -> DateRangeGroup:
+        """
+        Extract a new ``DateRangeGroup`` whose date ranges are
+        at least the specified number of ``days`` in length.
+        """
+        output_group = DateRangeGroup()
+        for dr in self:
+            if dr.duration_in_days() >= days:
+                output_group.date_ranges.append()
+        return output_group
+
     def __str__(self):
         return str(self.date_ranges)
 
