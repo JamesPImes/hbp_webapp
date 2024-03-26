@@ -158,7 +158,7 @@ class DateRange:
 
     def find_overlap(self, other: DateRange) -> DateRange | None:
         """
-        Find the overlap between this date reange and the ``other``
+        Find the overlap between this date range and the ``other``
         date range. If there is no overlap, return None.
 
         :param other:
