@@ -98,25 +98,25 @@ class TestWellGroup(unittest.TestCase):
             last_date=date(2020, 5, 31),
         )
         dr1 = DateRange(start_date=date(2002, 1, 1), end_date=date(2003, 12, 31))
-        dr2 = DateRange(start_date=date(2002, 4, 1), end_date=date(2003, 7, 31))
         wr1.register_date_range(dr1, category="test")
-        wr1.register_date_range(dr2, category="ignore")
+        ignore_dr = DateRange(start_date=date(2002, 4, 1), end_date=date(2003, 7, 31))
+        wr1.register_date_range(ignore_dr, category="ignore")
 
         wr2 = WellRecord(
             api_num="05-123-98765",
             well_name="test well #2",
-            first_date=date(2019, 11, 1),
+            first_date=date(2002, 1, 1),
             last_date=date(2023, 5, 1),
         )
-        dr3 = DateRange(start_date=date(2002, 5, 1), end_date=date(2003, 11, 30))
-        wr2.register_date_range(dr3, category="test")
+        dr2 = DateRange(start_date=date(2002, 5, 1), end_date=date(2004, 11, 30))
+        wr2.register_date_range(dr2, category="test")
 
         wg = WellGroup()
         wg.add_well_record(wr1)
         wg.add_well_record(wr2)
 
         gaps = wg.find_gaps(category="test")
-        dr_expected = DateRange(start_date=date(2002, 1, 1), end_date=date(2002, 4, 30))
+        dr_expected = DateRange(start_date=date(2002, 5, 1), end_date=date(2003, 12, 31))
         # Only 1 gap remains.
         self.assertEqual(
             len(gaps),

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 from backend.well_records.well_record import WellRecord
 from backend.well_records.date_range import DateRange, DateRangeGroup
@@ -50,11 +50,11 @@ class WellGroup:
             normalized_dr_group = DateRangeGroup(original_dr_group.date_ranges)
             if overall_first_date < wr.first_date:
                 normalized_dr_group.add_date_range(
-                    DateRange(overall_first_date, wr.first_date)
+                    DateRange(overall_first_date, wr.first_date - timedelta(days=1))
                 )
             if overall_last_date > wr.last_date:
                 normalized_dr_group.add_date_range(
-                    DateRange(overall_last_date, wr.last_date)
+                    DateRange(wr.last_date + timedelta(days=1), overall_last_date)
                 )
 
             if i == 0:
