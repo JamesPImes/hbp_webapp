@@ -46,6 +46,9 @@ class TestTimePeriod(unittest.TestCase):
         self.assertFalse(tp1.is_contiguous_with(tp2))
         self.assertFalse(tp2.is_contiguous_with(tp1))
 
+    def test_encompasses(self):
+        pass
+
     def test_merge_with(self):
         tp1 = TimePeriod(
             start_date=date(2014, 1, 1), end_date=date(2015, 1, 31), category=CATEGORY
@@ -57,10 +60,24 @@ class TestTimePeriod(unittest.TestCase):
             start_date=date(2014, 1, 1), end_date=date(2015, 5, 31), category=CATEGORY
         )
         result = tp1.merge_with(tp2)
-        self.assertEqual(result.start_date, expected.start_date)
-        self.assertEqual(result.end_date, expected.end_date)
+        self.assertEqual(len(result), 1)
+        merged_tp = result[0]
+        self.assertEqual(merged_tp.start_date, expected.start_date)
+        self.assertEqual(merged_tp.end_date, expected.end_date)
 
-    def test_subtract_out(self):
+    def test_merge_with_no_overlap(self):
+        tp1 = TimePeriod(
+            start_date=date(2014, 1, 1), end_date=date(2015, 1, 31), category=CATEGORY
+        )
+        tp2 = TimePeriod(
+            start_date=date(2016, 12, 1), end_date=date(2017, 5, 31), category=CATEGORY
+        )
+        result = tp1.merge_with(tp2)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0], tp1)
+        self.assertEqual(result[1], tp2)
+
+    def test_subtract_back(self):
         tp1 = TimePeriod(
             start_date=date(2014, 1, 1), end_date=date(2015, 1, 31), category=CATEGORY
         )
@@ -70,9 +87,53 @@ class TestTimePeriod(unittest.TestCase):
         expected = TimePeriod(
             start_date=date(2014, 1, 1), end_date=date(2014, 11, 30), category=CATEGORY
         )
-        result = tp1.subtract_out(tp2)
-        self.assertEqual(result.start_date, expected.start_date)
-        self.assertEqual(result.end_date, expected.end_date)
+        result = tp1.subtract(tp2)
+        self.assertEqual(len(result), 1)
+        subtracted_tp = result[0]
+        self.assertEqual(subtracted_tp.start_date, expected.start_date)
+        self.assertEqual(subtracted_tp.end_date, expected.end_date)
+
+    def test_subtract_front(self):
+        tp1 = TimePeriod(
+            start_date=date(2014, 12, 1), end_date=date(2015, 5, 31), category=CATEGORY
+        )
+        tp2 = TimePeriod(
+            start_date=date(2014, 1, 1), end_date=date(2015, 1, 31), category=CATEGORY
+        )
+        expected = TimePeriod(
+            start_date=date(2015, 2, 1), end_date=date(2015, 5, 31), category=CATEGORY
+        )
+        result = tp1.subtract(tp2)
+        self.assertEqual(len(result), 1)
+        subtracted_tp = result[0]
+        self.assertEqual(subtracted_tp.start_date, expected.start_date)
+        self.assertEqual(subtracted_tp.end_date, expected.end_date)
+
+    def test_subtract_all(self):
+        tp1 = TimePeriod(
+            start_date=date(2014, 1, 1), end_date=date(2015, 1, 31), category=CATEGORY
+        )
+        tp2 = TimePeriod(
+            start_date=date(2010, 1, 1), end_date=date(2020, 1, 1), category=CATEGORY
+        )
+        result = tp1.subtract(tp2)
+        self.assertEqual(len(result), 0)
+
+    def test_subtract_split(self):
+        tp1 = TimePeriod(
+            start_date=date(2010, 1, 1), end_date=date(2020, 12, 31), category=CATEGORY
+        )
+        tp2 = TimePeriod(
+            start_date=date(2015, 1, 1), end_date=date(2015, 12, 31), category=CATEGORY
+        )
+        result = tp1.subtract(tp2)
+        self.assertEqual(len(result), 2)
+        subtracted_tp1 = result[0]
+        self.assertEqual(subtracted_tp1.start_date, date(2010, 1, 1))
+        self.assertEqual(subtracted_tp1.end_date, date(2014, 12, 31))
+        subtracted_tp2 = result[1]
+        self.assertEqual(subtracted_tp2.start_date, date(2016, 1, 1))
+        self.assertEqual(subtracted_tp2.end_date, date(2020, 12, 31))
 
 
 if __name__ == "__main__":

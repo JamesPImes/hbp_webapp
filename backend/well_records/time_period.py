@@ -4,6 +4,9 @@ from typing import Callable
 from datetime import date, datetime, timedelta
 
 
+DEFAULT_CATEGORY = "default"
+
+
 def _default_parse_func(date_str: str) -> (date, date):
     """
     :param date_str: "2014-01-01::2015-01-09"
@@ -22,7 +25,7 @@ class TimePeriod:
     """A period of time."""
 
     def __init__(
-        self, start_date: date, end_date: date, category: str = "default"
+        self, start_date: date, end_date: date, category: str = DEFAULT_CATEGORY
     ) -> None:
         if start_date > end_date:
             raise ValueError("Start date must be earlier than end date.")
@@ -89,11 +92,60 @@ class TimePeriod:
             return True
         return False
 
-    def merge_with(self, other: TimePeriod) -> TimePeriod:
-        pass
+    def encompasses(self, other: TimePeriod, days_tolerance: int = 1) -> bool:
+        return (
+            self.start_date - timedelta(days=days_tolerance) < other.start_date
+            and self.end_date + timedelta(days=days_tolerance) > other.end_date
+        )
 
-    def subtract_out(self, other: TimePeriod) -> TimePeriod:
-        pass
+    def merge_with(
+        self, other: TimePeriod, days_tolerance: int = 1
+    ) -> list[TimePeriod]:
+        if not self.is_contiguous_with(other, days_tolerance):
+            return [self, other]
+        start = min(self.start_date, other.start_date)
+        end = max(self.end_date, other.end_date)
+        return [TimePeriod(start, end, category=self.category)]
+
+    def subtract(self, other: TimePeriod) -> list[TimePeriod]:
+        tps = []
+        if not self.is_contiguous_with(other, days_tolerance=0):
+            # No overlap, so nothing to cut out.
+            tps = [self]
+
+        elif other.encompasses(self, days_tolerance=0):
+            # Complete overalp, so deleting this entire time period.
+            pass
+
+        elif self.encompasses(other, days_tolerance=0):
+            # Middle cut, results in 2 new time periods.
+            start1 = self.start_date
+            end1 = other.start_date - timedelta(days=1)
+            tp1 = TimePeriod(start1, end1, category=self.category)
+            tps.append(tp1)
+            start2 = other.end_date + timedelta(days=1)
+            end2 = self.end_date
+            tp2 = TimePeriod(start2, end2, category=self.category)
+            tps.append(tp2)
+
+        # One end or the other is trimmed, but only 1 resulting time period.
+        elif other.start_date < self.start_date:
+            # Trimming the front end.
+            tp = TimePeriod(
+                other.end_date + timedelta(days=1),
+                self.end_date,
+                category=self.category,
+            )
+            tps.append(tp)
+        else:
+            # Trimming the back end.
+            tp = TimePeriod(
+                self.start_date,
+                other.start_date - timedelta(days=1),
+                category=self.category,
+            )
+            tps.append(tp)
+        return tps
 
     def __str__(self):
         return f"<{self.start_date:%Y-%m-%d}::{self.end_date:%Y-%m-%d}>"
@@ -102,6 +154,14 @@ class TimePeriod:
         return str(self)
 
 
+class TimePeriodGroup:
+    def __init__(
+        self, time_periods: list[TimePeriod] = None, category: str = DEFAULT_CATEGORY
+    ) -> None:
+            pass
+
+
 __all__ = [
     "TimePeriod",
+    "TimePeriodGroup",
 ]
