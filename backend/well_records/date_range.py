@@ -33,7 +33,10 @@ class DateRange:
         return (self.end_date - self.start_date).days + 1
 
     def duration_in_months(self) -> int:
-        """Return the duration in calendar months, including the first and last."""
+        """
+        Return the duration in calendar months, including the first and
+        last.
+        """
         years = self.end_date.year - self.start_date.year
         months = self.end_date.month - self.start_date.month
         return years * 12 + months + 1
@@ -43,13 +46,15 @@ class DateRange:
         """
         Create a ``DateRange`` from a string.
 
-        Default assumes the format ``"YYYY-MM-DD::YYYY-MM-DD"``. If a different format
-        is used, ``parse_func`` must also be provided, being a function that will
-        split the string into two ``datetime.date`` objects.
+        Default assumes the format ``"YYYY-MM-DD::YYYY-MM-DD"``. If a
+        different format is used, ``parse_func`` must also be provided,
+        being a function that will split the string into two
+        ``datetime.date`` objects.
 
         :param date_str: The string to parse into a ``DateRange``.
-        :param parse_func: The function to split a string into two ``datetime.date``
-         objects. (Only required if ``date_str`` is not in the expected format.)
+        :param parse_func: The function to split a string into two
+         ``datetime.date`` objects. (Only required if ``date_str`` is
+         not in the expected format.)
         :return: The new ``DateRange`` object.
         """
         if parse_func is None:
@@ -63,12 +68,11 @@ class DateRange:
         or if the two overlap.
 
         :param other: The other ``DateRange`` to check.
-        :param days_tolerance: If two ``DateRange`` objects do
-         not overlap (strictly speaking) but are within this
-         specified number of days, they may be considered as
-         contiguous. Defaults to 1 (i.e., if one ``DateRange`` ends
-         on one day and the other begins on the next day, they are
-         considered contiguous).
+        :param days_tolerance: If two ``DateRange`` objects do not
+         overlap (strictly speaking) but are within this specified
+         number of days, they may be considered as contiguous. Defaults
+         to 1 (i.e., if one ``DateRange`` ends on one day and the other
+         begins on the next day, they are considered contiguous).
         """
         if (
             self.start_date - timedelta(days=days_tolerance)
@@ -85,12 +89,27 @@ class DateRange:
         return False
 
     def encompasses(self, other: DateRange, days_tolerance: int = 1) -> bool:
+        """
+        Check whether this ``DateRange`` completely encompasses the
+        ``DateRange`` passed as ``other``.
+        """
         return (
             self.start_date - timedelta(days=days_tolerance) < other.start_date
             and self.end_date + timedelta(days=days_tolerance) > other.end_date
         )
 
     def merge_with(self, other: DateRange, days_tolerance: int = 1) -> list[DateRange]:
+        """
+        Merge the ``other`` date range into this one, if they are
+        contiguous (within the specified number of ``days_tolerance``).
+        If contiguous, will return a list of a single new ``DateRange``.
+        If not contiguous, will return a list of two ``DateRange``
+        objects (the original date ranges).
+
+        :param other:
+        :param days_tolerance:
+        :return:
+        """
         if not self.is_contiguous_with(other, days_tolerance):
             return [self, other]
         start = min(self.start_date, other.start_date)
@@ -98,6 +117,14 @@ class DateRange:
         return [DateRange(start, end)]
 
     def subtract(self, other: DateRange) -> list[DateRange]:
+        """
+        Carve the ``other`` date range out of this date range, and
+        return a list of the resulting ``DateRange`` object(s) -- i.e.,
+        between 0 and 2 resulting date ranges.
+
+        :param other:
+        :return:
+        """
         drs = []
         if not self.is_contiguous_with(other, days_tolerance=0):
             # No overlap, so nothing to cut out.
@@ -130,6 +157,13 @@ class DateRange:
         return drs
 
     def find_overlap(self, other: DateRange) -> DateRange | None:
+        """
+        Find the overlap between this date reange and the ``other``
+        date range. If there is no overlap, return None.
+
+        :param other:
+        :return:
+        """
         dr = None
         if not self.is_contiguous_with(other, days_tolerance=0):
             pass
@@ -152,21 +186,29 @@ class DateRange:
 
 
 class DateRangeGroup:
+    """A collection of ``DateRange`` objects."""
+
     def __init__(self, date_ranges: list[DateRange] = None) -> None:
         if date_ranges is None:
             date_ranges = []
         self.date_ranges: list[DateRange] = date_ranges
 
     def add_date_range(self, date_range: DateRange) -> None:
+        """Add a ``DateRange`` object, with type checking."""
         if not isinstance(date_range, DateRange):
             raise TypeError("May only add DateRange objects")
         self.date_ranges.append(date_range)
 
     def sort(self) -> None:
+        """Sort the date ranges by start date, then end date."""
         self.date_ranges.sort(key=lambda t: t.start_date)
         self.date_ranges.sort(key=lambda t: t.end_date)
 
     def merge_all(self, days_tolerance: int = 0) -> None:
+        """
+        Merge the date ranges into as few as possible, and store the
+        results.
+        """
         self.sort()
         drs = self.date_ranges
         new_drs = []
@@ -180,6 +222,14 @@ class DateRangeGroup:
         self.date_ranges = new_drs
 
     def subtract_from_all(self, date_range: DateRange) -> None:
+        """
+        Subtract the specified date range from every date range stored
+        in this group, and store the results. (The ``DateRange`` object
+        passed to this method will not be added.)
+
+        :param date_range:
+        :return:
+        """
         new_drs = []
         for dr in self.date_ranges:
             subtracted = dr.subtract(date_range)
@@ -188,6 +238,13 @@ class DateRangeGroup:
         self.sort()
 
     def find_all_overlaps(self, other: DateRangeGroup) -> DateRangeGroup:
+        """
+        Find all overlapping date ranges between this ``DateRangeGroup``
+        and another ``DateRangeGroup``. Returns a new group.
+
+        :param other:
+        :return:
+        """
         new_group = DateRangeGroup()
         if len(self.date_ranges) == 0 or len(other.date_ranges) == 0:
             return new_group
@@ -204,8 +261,8 @@ class DateRangeGroup:
 
     def get_date_ranges_of_minimum_duration(self, days: int) -> DateRangeGroup:
         """
-        Extract a new ``DateRangeGroup`` whose date ranges are
-        at least the specified number of ``days`` in length.
+        Extract a new ``DateRangeGroup`` whose date ranges are at least
+        the specified number of ``days`` in length.
         """
         output_group = DateRangeGroup()
         for dr in self:
