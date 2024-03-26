@@ -143,7 +143,7 @@ class DateRangeGroup:
         self.date_ranges: list[DateRange] = date_ranges
 
     def add_date_range(self, date_range: DateRange) -> None:
-        if not isinstance(DateRange):
+        if not isinstance(date_range, DateRange):
             raise TypeError("May only add DateRange objects")
         self.date_ranges.append(date_range)
 
