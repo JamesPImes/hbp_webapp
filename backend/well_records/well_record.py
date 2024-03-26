@@ -12,11 +12,13 @@ class WellRecord:
         well_name: str = None,
         first_date: date = None,
         last_date: date = None,
+        record_access_date: date = None,
     ) -> None:
         self.api_num: str = api_num
         self.well_name: str = well_name
         self.first_date: date = first_date
         self.last_date: date = last_date
+        self.record_access_date: date = record_access_date
         self.date_ranges: dict[str:DateRangeGroup] = {}
 
     def register_date_range(self, date_range: DateRange, category: str) -> None:
