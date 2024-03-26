@@ -20,12 +20,15 @@ class WellRecord:
         self.date_ranges: dict[str:DateRangeGroup] = {}
 
     def register_date_range(self, date_range: DateRange, category: str) -> None:
-        """Register a date range to this well to the specified ``category``."""
+        """
+        Register a date range to this well to the specified
+        ``category``.
+        """
         self.date_ranges.setdefault(category, DateRangeGroup())
         self.date_ranges[category].add_date_range(date_range)
 
     def date_ranges_by_category(self, category) -> DateRangeGroup:
-        """Get the ``DateRangeGroup`` for the specified category."""
+        """Get the ``DateRangeGroup`` for the specified ``category``."""
         return self.date_ranges.get(category, DateRangeGroup())
 
     def __str__(self):
