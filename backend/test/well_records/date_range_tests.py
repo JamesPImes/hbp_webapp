@@ -16,10 +16,10 @@ class TestDateRange_basic(unittest.TestCase):
         cls.date_range = DateRange(cls.START_DATE, cls.END_DATE)
 
     def test_duration_in_days(self):
-        self.assertEqual(self.date_range.duration_in_days(), self.EXPECTED_DAYS)
+        self.assertEqual(self.EXPECTED_DAYS, self.date_range.duration_in_days())
 
     def test_duration_in_months(self):
-        self.assertEqual(self.date_range.duration_in_months(), self.EXPECTED_MONTHS)
+        self.assertEqual(self.EXPECTED_MONTHS, self.date_range.duration_in_months())
 
 
 class TestDateRange_comparisonsContiguous(unittest.TestCase):
@@ -80,25 +80,25 @@ class TestDateRange_merge(unittest.TestCase):
 
     def test_merge_with_len(self):
         result = self.merge_dr1.merge_with(self.merge_dr2)
-        self.assertEqual(len(result), 1)
+        self.assertEqual(1, len(result))
 
     def test_merge_with_start_date(self):
         result = self.merge_dr1.merge_with(self.merge_dr2)
         merged_dr = result[0]
-        self.assertEqual(merged_dr.start_date, self.merge_expected.start_date)
-        self.assertEqual(merged_dr.end_date, self.merge_expected.end_date)
+        self.assertEqual(self.merge_expected.start_date, merged_dr.start_date)
+        self.assertEqual(self.merge_expected.end_date, merged_dr.end_date)
 
     def test_merge_with_no_overlap_len(self):
         result = self.no_merge_dr1.merge_with(self.no_merge_dr2)
-        self.assertEqual(len(result), 2)
+        self.assertEqual(2, len(result))
 
     def test_merge_with_no_overlap_same_first(self):
         result = self.no_merge_dr1.merge_with(self.no_merge_dr2)
-        self.assertEqual(result[0], self.no_merge_dr1)
+        self.assertEqual(self.no_merge_dr1, result[0])
 
     def test_merge_with_no_overlap_same_second(self):
         result = self.no_merge_dr1.merge_with(self.no_merge_dr2)
-        self.assertEqual(result[1], self.no_merge_dr2)
+        self.assertEqual(self.no_merge_dr2, result[1])
 
 
 class TestDateRange_subtract(unittest.TestCase):
@@ -148,43 +148,40 @@ class TestDateRange_subtract(unittest.TestCase):
 
     def test_subtract_back_len(self):
         result = self.back_dr1.subtract(self.back_dr2)
-        self.assertEqual(len(result), 1)
+        self.assertEqual(1, len(result))
 
     def test_subtract_back_start_date(self):
         result = self.back_dr1.subtract(self.back_dr2)
         subtracted_dr = result[0]
-        self.assertEqual(subtracted_dr.start_date, self.back_expected.start_date)
-        self.assertEqual(subtracted_dr.end_date, self.back_expected.end_date)
+        self.assertEqual(self.back_expected.start_date, subtracted_dr.start_date)
+        self.assertEqual(self.back_expected.end_date, subtracted_dr.end_date)
 
     def test_subtract_back_end_date(self):
         result = self.back_dr1.subtract(self.back_dr2)
         subtracted_dr = result[0]
-        self.assertEqual(subtracted_dr.end_date, self.back_expected.end_date)
+        self.assertEqual(self.back_expected.end_date, subtracted_dr.end_date)
 
     def test_subtract_front_len(self):
         result = self.front_dr1.subtract(self.front_dr2)
-        self.assertEqual(len(result), 1)
-        subtracted_dr = result[0]
-        self.assertEqual(subtracted_dr.start_date, self.front_expected.start_date)
-        self.assertEqual(subtracted_dr.end_date, self.front_expected.end_date)
+        self.assertEqual(1, len(result))
 
     def test_subtract_front_start_date(self):
         result = self.front_dr1.subtract(self.front_dr2)
         subtracted_dr = result[0]
-        self.assertEqual(subtracted_dr.start_date, self.front_expected.start_date)
+        self.assertEqual(self.front_expected.start_date, subtracted_dr.start_date)
 
     def test_subtract_front_end_date(self):
         result = self.front_dr1.subtract(self.front_dr2)
         subtracted_dr = result[0]
-        self.assertEqual(subtracted_dr.end_date, self.front_expected.end_date)
+        self.assertEqual(self.front_expected.end_date, subtracted_dr.end_date)
 
     def test_subtract_entire(self):
         result = self.entire_dr1.subtract(self.entire_dr2)
-        self.assertEqual(len(result), 0)
+        self.assertEqual(0, len(result))
 
     def test_subtract_split_len(self):
         result = self.split_dr1.subtract(self.split_dr2)
-        self.assertEqual(len(result), 2)
+        self.assertEqual(2, len(result))
 
     def test_subtract_split_first_start_date(self):
         result = self.split_dr1.subtract(self.split_dr2)
@@ -213,7 +210,7 @@ class TestDateRange_overlap(unittest.TestCase):
         dr1 = DateRange(date(2010, 1, 1), date(2011, 12, 31))
         dr2 = DateRange(date(2011, 1, 1), date(2012, 12, 31))
         overlap = dr1.find_overlap(dr2)
-        self.assertEqual(overlap.duration_in_days(), 365)
+        self.assertEqual(365, overlap.duration_in_days())
 
 
 class TestDateRangeGroup_merge_subtract(unittest.TestCase):
@@ -228,12 +225,12 @@ class TestDateRangeGroup_merge_subtract(unittest.TestCase):
     def test_merge_all(self):
         group = DateRangeGroup(date_ranges=[self.dr1, self.dr2, self.dr3])
         group.merge_all()
-        self.assertEqual(len(group.date_ranges), 2)
+        self.assertEqual(2, len(group.date_ranges))
 
     def test_subtract_from_all(self):
         group = DateRangeGroup(date_ranges=[self.dr1, self.dr2, self.dr3])
         group.subtract_from_all(self.dr4)
-        self.assertEqual(len(group.date_ranges), 2)
+        self.assertEqual(2, len(group.date_ranges))
 
 class TestDateRangeGroup_overlaps(unittest.TestCase):
 
@@ -254,17 +251,17 @@ class TestDateRangeGroup_overlaps(unittest.TestCase):
         cls.overlap_group = group1.find_all_overlaps(group2)
 
     def test_find_all_overlaps_len(self):
-        self.assertEqual(len(self.overlap_group.date_ranges), 4)
+        self.assertEqual(4, len(self.overlap_group.date_ranges))
 
     def test_find_all_overlaps_first_start_date(self):
-        self.assertEqual(self.overlap_group.date_ranges[0].start_date, date(2011, 1, 1))
+        self.assertEqual(date(2011, 1, 1), self.overlap_group.date_ranges[0].start_date)
 
     def test_find_all_overlaps_first_end_date(self):
-        self.assertEqual(self.overlap_group.date_ranges[0].end_date, date(2011, 12, 31))
+        self.assertEqual(date(2011, 12, 31), self.overlap_group.date_ranges[0].end_date)
 
     def test_find_all_overlaps_durations(self):
         for dr in self.overlap_group.date_ranges:
-            self.assertEqual(dr.duration_in_days(), 365)
+            self.assertEqual(365, dr.duration_in_days())
 
 
 if __name__ == "__main__":
