@@ -21,7 +21,7 @@ COLORADO_CONFIG = {
 }
 
 
-class MyTestCase(unittest.TestCase):
+class TestScraperWellDataCollector(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
