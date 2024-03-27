@@ -15,12 +15,12 @@ class TestWellRecord(unittest.TestCase):
             first_date=date(2020, 12, 1),
             last_date=date(2024, 1, 1),
         )
-        date_range_1 = DateRange.from_string("2014-01-01::2015-02-01")
+        date_range_1 = DateRange(date(2014, 1, 1), date(2015, 2, 1))
         well_record.register_date_range(date_range_1, category="test")
-        date_range_2 = DateRange.from_string("2019-01-01::2020-12-01")
+        date_range_2 = DateRange(date(2019, 1, 1), date(2020, 12, 1))
         well_record.register_date_range(date_range_2, category="test")
         number_of_keys = len(well_record.date_ranges.keys())
-        self.assertEqual(number_of_keys, 1)
+        self.assertEqual(1, number_of_keys)
 
     def test_date_ranges_by_category(self):
         """Test that we can recall date ranges by category."""
@@ -31,12 +31,12 @@ class TestWellRecord(unittest.TestCase):
             last_date=date(2024, 1, 1),
         )
         cat_name = "test"
-        date_range_1 = DateRange.from_string("2014-01-01::2015-02-01")
+        date_range_1 = DateRange(date(2014, 1, 1), date(2015, 2, 1))
         well_record.register_date_range(date_range_1, cat_name)
-        date_range_2 = DateRange.from_string("2019-01-01::2020-12-01")
+        date_range_2 = DateRange(date(2019, 1, 1), date(2020, 12, 1))
         well_record.register_date_range(date_range_2, cat_name)
         # Add to a different category.
-        date_range_3 = DateRange.from_string("2021-01-01::2022-12-01")
+        date_range_3 = DateRange(date(2021, 1, 1), date(2022, 12, 1))
         well_record.register_date_range(date_range_3, category="other")
 
         # The DateRangeGroup for "test" category contains 2 TimePeriod objects.
@@ -44,7 +44,7 @@ class TestWellRecord(unittest.TestCase):
             category=cat_name
         )
         number_of_date_ranges = len(date_ranges_for_test_cat.date_ranges)
-        self.assertEqual(number_of_date_ranges, 2)
+        self.assertEqual(2, number_of_date_ranges)
 
 
 if __name__ == "__main__":
