@@ -216,27 +216,29 @@ class TestDateRange_overlap(unittest.TestCase):
         self.assertEqual(overlap.duration_in_days(), 365)
 
 
-class TestDateRangeGroup(unittest.TestCase):
+class TestDateRangeGroup_merge_subtract(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.dr1 = DateRange(start_date=date(2010, 1, 1), end_date=date(2011, 12, 31))
+        cls.dr2 = DateRange(start_date=date(2015, 1, 1), end_date=date(2017, 12, 31))
+        cls.dr3 = DateRange(start_date=date(2011, 1, 1), end_date=date(2012, 12, 31))
+        cls.dr4 = DateRange(start_date=date(2010, 10, 1), end_date=date(2013, 12, 31))
+
     def test_merge_all(self):
-        dr1 = DateRange(start_date=date(2010, 1, 1), end_date=date(2011, 12, 31))
-        dr2 = DateRange(start_date=date(2015, 1, 1), end_date=date(2017, 12, 31))
-        dr3 = DateRange(start_date=date(2011, 1, 1), end_date=date(2012, 12, 31))
-        drs = [dr1, dr2, dr3]
-        group = DateRangeGroup(date_ranges=drs)
+        group = DateRangeGroup(date_ranges=[self.dr1, self.dr2, self.dr3])
         group.merge_all()
         self.assertEqual(len(group.date_ranges), 2)
 
     def test_subtract_from_all(self):
-        dr1 = DateRange(start_date=date(2010, 1, 1), end_date=date(2011, 12, 31))
-        dr2 = DateRange(start_date=date(2015, 1, 1), end_date=date(2017, 12, 31))
-        dr3 = DateRange(start_date=date(2011, 1, 1), end_date=date(2012, 12, 31))
-        drs = [dr1, dr2, dr3]
-        group = DateRangeGroup(date_ranges=drs)
-        dr4 = DateRange(start_date=date(2010, 10, 1), end_date=date(2013, 12, 31))
-        group.subtract_from_all(dr4)
+        group = DateRangeGroup(date_ranges=[self.dr1, self.dr2, self.dr3])
+        group.subtract_from_all(self.dr4)
         self.assertEqual(len(group.date_ranges), 2)
 
-    def test_find_all_overlaps(self):
+class TestDateRangeGroup_overlaps(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
         dr1 = DateRange(date(2010, 1, 1), date(2011, 12, 31))
         dr2 = DateRange(date(2014, 1, 1), date(2015, 12, 31))
         dr3 = DateRange(date(2018, 1, 1), date(2019, 12, 31))
@@ -249,13 +251,19 @@ class TestDateRangeGroup(unittest.TestCase):
 
         group1 = DateRangeGroup([dr1, dr2, dr3, dr4])
         group2 = DateRangeGroup([dr5, dr6, dr7, dr8])
+        cls.overlap_group = group1.find_all_overlaps(group2)
 
-        overlap_group = group1.find_all_overlaps(group2)
-        print(overlap_group)
-        self.assertEqual(len(overlap_group.date_ranges), 4)
-        self.assertEqual(overlap_group.date_ranges[0].start_date, date(2011, 1, 1))
-        self.assertEqual(overlap_group.date_ranges[0].end_date, date(2011, 12, 31))
-        for dr in overlap_group.date_ranges:
+    def test_find_all_overlaps_len(self):
+        self.assertEqual(len(self.overlap_group.date_ranges), 4)
+
+    def test_find_all_overlaps_first_start_date(self):
+        self.assertEqual(self.overlap_group.date_ranges[0].start_date, date(2011, 1, 1))
+
+    def test_find_all_overlaps_first_end_date(self):
+        self.assertEqual(self.overlap_group.date_ranges[0].end_date, date(2011, 12, 31))
+
+    def test_find_all_overlaps_durations(self):
+        for dr in self.overlap_group.date_ranges:
             self.assertEqual(dr.duration_in_days(), 365)
 
 
