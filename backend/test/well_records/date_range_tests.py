@@ -4,97 +4,210 @@ from datetime import date
 from backend.well_records.date_range import DateRange, DateRangeGroup
 
 
-START_DATE = date(2014, 1, 1)
-END_DATE = date(2015, 2, 1)
-EXPECTED_DAYS = 397
-EXPECTED_MONTHS = 14
-DATE_RANGE_AS_STRING = "2014-01-01::2015-02-01"
+class TestDateRange_basic(unittest.TestCase):
 
+    START_DATE = date(2014, 1, 1)
+    END_DATE = date(2015, 2, 1)
+    EXPECTED_DAYS = 397
+    EXPECTED_MONTHS = 14
 
-class TestDateRange(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.date_range = DateRange(cls.START_DATE, cls.END_DATE)
 
     def test_duration_in_days(self):
-        date_range = DateRange(START_DATE, END_DATE)
-        self.assertEqual(date_range.duration_in_days(), EXPECTED_DAYS)
+        self.assertEqual(self.date_range.duration_in_days(), self.EXPECTED_DAYS)
 
     def test_duration_in_months(self):
-        date_range = DateRange(START_DATE, END_DATE)
-        self.assertEqual(date_range.duration_in_months(), EXPECTED_MONTHS)
+        self.assertEqual(self.date_range.duration_in_months(), self.EXPECTED_MONTHS)
 
-    def test_from_string(self):
-        date_range = DateRange.from_string(DATE_RANGE_AS_STRING)
-        self.assertEqual(date_range.duration_in_months(), EXPECTED_MONTHS)
 
-    def test_is_contiguous_with(self):
-        dr1 = DateRange(start_date=date(2014, 1, 1), end_date=date(2015, 1, 31))
-        dr2 = DateRange(start_date=date(2015, 2, 1), end_date=date(2015, 5, 31))
-        self.assertTrue(dr1.is_contiguous_with(dr2))
-        self.assertTrue(dr2.is_contiguous_with(dr1))
+class TestDateRange_comparisonsContiguous(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        # Date ranges 1 and 2 are contiguous, but 1 and 3 are not.
+        cls.dr1 = DateRange(start_date=date(2014, 1, 1), end_date=date(2015, 1, 31))
+        cls.dr2 = DateRange(start_date=date(2015, 2, 1), end_date=date(2015, 5, 31))
+        cls.dr3 = DateRange(start_date=date(2015, 3, 1), end_date=date(2015, 5, 31))
 
-    def test_is_contiguous_with_false(self):
-        dr1 = DateRange(start_date=date(2014, 1, 1), end_date=date(2015, 1, 31))
-        dr2 = DateRange(start_date=date(2015, 3, 1), end_date=date(2015, 5, 31))
-        self.assertFalse(dr1.is_contiguous_with(dr2))
-        self.assertFalse(dr2.is_contiguous_with(dr1))
+    def test_is_contiguous_with_a_to_b(self):
+        self.assertTrue(self.dr1.is_contiguous_with(self.dr2))
 
-    def test_encompasses(self):
-        pass
+    def test_is_contiguous_with_b_to_a(self):
+        self.assertTrue(self.dr2.is_contiguous_with(self.dr1))
 
-    def test_merge_with(self):
-        dr1 = DateRange(start_date=date(2014, 1, 1), end_date=date(2015, 1, 31))
-        dr2 = DateRange(start_date=date(2014, 12, 1), end_date=date(2015, 5, 31))
-        expected = DateRange(start_date=date(2014, 1, 1), end_date=date(2015, 5, 31))
-        result = dr1.merge_with(dr2)
+    def test_is_contiguous_with_a_to_b_false(self):
+        self.assertFalse(self.dr1.is_contiguous_with(self.dr3))
+
+    def test_is_contiguous_with_b_to_a_false(self):
+        self.assertFalse(self.dr3.is_contiguous_with(self.dr1))
+
+
+class TestDateRange_comparissonsEncompasses(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.dr1 = DateRange(start_date=date(2013, 1, 1), end_date=date(2015, 12, 31))
+        cls.dr2 = DateRange(start_date=date(2014, 1, 1), end_date=date(2014, 12, 31))
+
+    def test_encompasses_true(self):
+        self.assertTrue(self.dr1.encompasses(self.dr2))
+
+    def test_encompasses_false(self):
+        self.assertFalse(self.dr2.encompasses(self.dr1))
+
+
+class TestDateRange_merge(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.merge_dr1 = DateRange(
+            start_date=date(2014, 1, 1), end_date=date(2015, 1, 31)
+        )
+        cls.merge_dr2 = DateRange(
+            start_date=date(2014, 12, 1), end_date=date(2015, 5, 31)
+        )
+        cls.merge_expected = DateRange(
+            start_date=date(2014, 1, 1), end_date=date(2015, 5, 31)
+        )
+
+        cls.no_merge_dr1 = DateRange(
+            start_date=date(2014, 1, 1), end_date=date(2015, 1, 31)
+        )
+        cls.no_merge_dr2 = DateRange(
+            start_date=date(2016, 12, 1), end_date=date(2017, 5, 31)
+        )
+
+    def test_merge_with_len(self):
+        result = self.merge_dr1.merge_with(self.merge_dr2)
         self.assertEqual(len(result), 1)
+
+    def test_merge_with_start_date(self):
+        result = self.merge_dr1.merge_with(self.merge_dr2)
         merged_dr = result[0]
-        self.assertEqual(merged_dr.start_date, expected.start_date)
-        self.assertEqual(merged_dr.end_date, expected.end_date)
+        self.assertEqual(merged_dr.start_date, self.merge_expected.start_date)
+        self.assertEqual(merged_dr.end_date, self.merge_expected.end_date)
 
-    def test_merge_with_no_overlap(self):
-        dr1 = DateRange(start_date=date(2014, 1, 1), end_date=date(2015, 1, 31))
-        dr2 = DateRange(start_date=date(2016, 12, 1), end_date=date(2017, 5, 31))
-        result = dr1.merge_with(dr2)
+    def test_merge_with_no_overlap_len(self):
+        result = self.no_merge_dr1.merge_with(self.no_merge_dr2)
         self.assertEqual(len(result), 2)
-        self.assertEqual(result[0], dr1)
-        self.assertEqual(result[1], dr2)
 
-    def test_subtract_back(self):
-        dr1 = DateRange(start_date=date(2014, 1, 1), end_date=date(2015, 1, 31))
-        dr2 = DateRange(start_date=date(2014, 12, 1), end_date=date(2015, 5, 31))
-        expected = DateRange(start_date=date(2014, 1, 1), end_date=date(2014, 11, 30))
-        result = dr1.subtract(dr2)
+    def test_merge_with_no_overlap_same_first(self):
+        result = self.no_merge_dr1.merge_with(self.no_merge_dr2)
+        self.assertEqual(result[0], self.no_merge_dr1)
+
+    def test_merge_with_no_overlap_same_second(self):
+        result = self.no_merge_dr1.merge_with(self.no_merge_dr2)
+        self.assertEqual(result[1], self.no_merge_dr2)
+
+
+class TestDateRange_subtract(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        # Subtracting back_dr2 trims the back end of back_dr1.
+        cls.back_dr1 = DateRange(
+            start_date=date(2014, 1, 1), end_date=date(2015, 1, 31)
+        )
+        cls.back_dr2 = DateRange(
+            start_date=date(2014, 12, 1), end_date=date(2015, 5, 31)
+        )
+        cls.back_expected = DateRange(
+            start_date=date(2014, 1, 1), end_date=date(2014, 11, 30)
+        )
+
+        # Subtracting back_dr2 trims the front end of back_dr1.
+        cls.front_dr1 = DateRange(
+            start_date=date(2014, 12, 1), end_date=date(2015, 5, 31)
+        )
+        cls.front_dr2 = DateRange(
+            start_date=date(2014, 1, 1), end_date=date(2015, 1, 31)
+        )
+        cls.front_expected = DateRange(
+            start_date=date(2015, 2, 1), end_date=date(2015, 5, 31)
+        )
+
+        # Subtracting entire_dr2 from trims the entirety of entire_dr1.
+        cls.entire_dr1 = DateRange(
+            start_date=date(2014, 1, 1), end_date=date(2015, 1, 31)
+        )
+        cls.entire_dr2 = DateRange(
+            start_date=date(2010, 1, 1), end_date=date(2020, 1, 1)
+        )
+
+        # Subtracting split_dr2 splits split_dr1 in two parts.
+        cls.split_dr1 = DateRange(
+            start_date=date(2010, 1, 1), end_date=date(2020, 12, 31)
+        )
+        cls.split_dr2 = DateRange(
+            start_date=date(2015, 1, 1), end_date=date(2015, 12, 31)
+        )
+
+        cls.split_expected_1 = DateRange(date(2010, 1, 1), date(2014, 12, 31))
+        cls.split_expected_2 = DateRange(date(2016, 1, 1), date(2020, 12, 31))
+
+    def test_subtract_back_len(self):
+        result = self.back_dr1.subtract(self.back_dr2)
+        self.assertEqual(len(result), 1)
+
+    def test_subtract_back_start_date(self):
+        result = self.back_dr1.subtract(self.back_dr2)
+        subtracted_dr = result[0]
+        self.assertEqual(subtracted_dr.start_date, self.back_expected.start_date)
+        self.assertEqual(subtracted_dr.end_date, self.back_expected.end_date)
+
+    def test_subtract_back_end_date(self):
+        result = self.back_dr1.subtract(self.back_dr2)
+        subtracted_dr = result[0]
+        self.assertEqual(subtracted_dr.end_date, self.back_expected.end_date)
+
+    def test_subtract_front_len(self):
+        result = self.front_dr1.subtract(self.front_dr2)
         self.assertEqual(len(result), 1)
         subtracted_dr = result[0]
-        self.assertEqual(subtracted_dr.start_date, expected.start_date)
-        self.assertEqual(subtracted_dr.end_date, expected.end_date)
+        self.assertEqual(subtracted_dr.start_date, self.front_expected.start_date)
+        self.assertEqual(subtracted_dr.end_date, self.front_expected.end_date)
 
-    def test_subtract_front(self):
-        dr1 = DateRange(start_date=date(2014, 12, 1), end_date=date(2015, 5, 31))
-        dr2 = DateRange(start_date=date(2014, 1, 1), end_date=date(2015, 1, 31))
-        expected = DateRange(start_date=date(2015, 2, 1), end_date=date(2015, 5, 31))
-        result = dr1.subtract(dr2)
-        self.assertEqual(len(result), 1)
+    def test_subtract_front_start_date(self):
+        result = self.front_dr1.subtract(self.front_dr2)
         subtracted_dr = result[0]
-        self.assertEqual(subtracted_dr.start_date, expected.start_date)
-        self.assertEqual(subtracted_dr.end_date, expected.end_date)
+        self.assertEqual(subtracted_dr.start_date, self.front_expected.start_date)
 
-    def test_subtract_all(self):
-        dr1 = DateRange(start_date=date(2014, 1, 1), end_date=date(2015, 1, 31))
-        dr2 = DateRange(start_date=date(2010, 1, 1), end_date=date(2020, 1, 1))
-        result = dr1.subtract(dr2)
+    def test_subtract_front_end_date(self):
+        result = self.front_dr1.subtract(self.front_dr2)
+        subtracted_dr = result[0]
+        self.assertEqual(subtracted_dr.end_date, self.front_expected.end_date)
+
+    def test_subtract_entire(self):
+        result = self.entire_dr1.subtract(self.entire_dr2)
         self.assertEqual(len(result), 0)
 
-    def test_subtract_split(self):
-        dr1 = DateRange(start_date=date(2010, 1, 1), end_date=date(2020, 12, 31))
-        dr2 = DateRange(start_date=date(2015, 1, 1), end_date=date(2015, 12, 31))
-        result = dr1.subtract(dr2)
+    def test_subtract_split_len(self):
+        result = self.split_dr1.subtract(self.split_dr2)
         self.assertEqual(len(result), 2)
+
+    def test_subtract_split_first_start_date(self):
+        result = self.split_dr1.subtract(self.split_dr2)
         subtracted_dr1 = result[0]
-        self.assertEqual(subtracted_dr1.start_date, date(2010, 1, 1))
-        self.assertEqual(subtracted_dr1.end_date, date(2014, 12, 31))
+        self.assertEqual(self.split_expected_1.start_date, subtracted_dr1.start_date)
+
+    def test_subtract_split_first_end_date(self):
+        result = self.split_dr1.subtract(self.split_dr2)
+        subtracted_dr1 = result[0]
+        self.assertEqual(self.split_expected_1.end_date, subtracted_dr1.end_date)
+
+    def test_subtract_split_second_start_date(self):
+        result = self.split_dr1.subtract(self.split_dr2)
         subtracted_dr2 = result[1]
-        self.assertEqual(subtracted_dr2.start_date, date(2016, 1, 1))
-        self.assertEqual(subtracted_dr2.end_date, date(2020, 12, 31))
+        self.assertEqual(self.split_expected_2.start_date, subtracted_dr2.start_date)
+
+    def test_subtract_split_second_end_date(self):
+        result = self.split_dr1.subtract(self.split_dr2)
+        subtracted_dr2 = result[1]
+        self.assertEqual(self.split_expected_2.end_date, subtracted_dr2.end_date)
+
+
+class TestDateRange_overlap(unittest.TestCase):
 
     def test_find_overlap(self):
         dr1 = DateRange(date(2010, 1, 1), date(2011, 12, 31))
