@@ -23,6 +23,7 @@ class TestDateRange_basic(unittest.TestCase):
 
 
 class TestDateRange_comparisonsContiguous(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls) -> None:
         # Date ranges 1 and 2 are contiguous, but 1 and 3 are not.
@@ -86,6 +87,10 @@ class TestDateRange_merge(unittest.TestCase):
         result = self.merge_dr1.merge_with(self.merge_dr2)
         merged_dr = result[0]
         self.assertEqual(self.merge_expected.start_date, merged_dr.start_date)
+
+    def test_merge_with_end_date(self):
+        result = self.merge_dr1.merge_with(self.merge_dr2)
+        merged_dr = result[0]
         self.assertEqual(self.merge_expected.end_date, merged_dr.end_date)
 
     def test_merge_with_no_overlap_len(self):
@@ -154,7 +159,6 @@ class TestDateRange_subtract(unittest.TestCase):
         result = self.back_dr1.subtract(self.back_dr2)
         subtracted_dr = result[0]
         self.assertEqual(self.back_expected.start_date, subtracted_dr.start_date)
-        self.assertEqual(self.back_expected.end_date, subtracted_dr.end_date)
 
     def test_subtract_back_end_date(self):
         result = self.back_dr1.subtract(self.back_dr2)
@@ -231,6 +235,7 @@ class TestDateRangeGroup_merge_subtract(unittest.TestCase):
         group = DateRangeGroup(date_ranges=[self.dr1, self.dr2, self.dr3])
         group.subtract_from_all(self.dr4)
         self.assertEqual(2, len(group.date_ranges))
+
 
 class TestDateRangeGroup_overlaps(unittest.TestCase):
 
