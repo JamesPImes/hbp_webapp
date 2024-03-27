@@ -1,0 +1,152 @@
+"""
+Scrape well data from websites that provide monthly tabular production
+data that can be accessed via direct URL (e.g., Colorado's state ECMC
+website: https://ecmc.state.co.us/ )
+"""
+
+from datetime import date
+from calendar import monthrange
+
+import pandas as pd
+from production_analyzer import ProductionAnalyzer, DataLoader, HTMLLoader
+
+from ..well_records.well_record import WellRecord
+from ..well_records.date_range import DateRange, DateRangeGroup
+from ..well_records.standard_categories import (
+    NO_PROD_IGNORE_SHUTIN,
+    NO_PROD_BUT_SHUTIN_COUNTS,
+)
+from .well_data_collector import WellDataCollector
+
+
+class ScraperWellDataCollector(WellDataCollector):
+    def __init__(
+        self,
+        prod_url_template,
+        date_col: str,
+        oil_prod_col: str,
+        gas_prod_col: str,
+        days_produced_col: str = None,
+        status_col: str = None,
+        auth=None,
+        shutin_codes: list[str] = None,
+        oil_prod_min: int = 0,
+        gas_prod_min: int = 0,
+    ) -> None:
+        super().__init__()
+        self.prod_url_template = prod_url_template
+        self.date_col = date_col
+        self.oil_prod_col = oil_prod_col
+        self.gas_prod_col = gas_prod_col
+        self.days_produced_col = days_produced_col
+        self.status_col = status_col
+        self.auth = auth
+        self.shutin_codes = shutin_codes
+        self.oil_prod_min = oil_prod_min
+        self.gas_prod_min = gas_prod_min
+
+    def get_html_scraper(self):
+        html_scraper = HTMLLoader(
+            prod_url_template=self.prod_url_template,
+            date_col=self.date_col,
+            oil_prod_col=self.oil_prod_col,
+            gas_prod_col=self.oil_prod_col,
+            days_produced_col=self.days_produced_col,
+            status_col=self.status_col,
+            auth=self.auth,
+        )
+        return html_scraper
+
+    def get_data_loader(self) -> DataLoader:
+        data_loader = DataLoader(
+            date_col=self.date_col,
+            oil_prod_col=self.oil_prod_col,
+            gas_prod_col=self.gas_prod_col,
+            days_produced_col=self.days_produced_col,
+            status_col=self.status_col,
+        )
+        return data_loader
+
+    def get_analyzer(self, prod_df: pd.DataFrame) -> ProductionAnalyzer:
+        analyzer = ProductionAnalyzer(
+            df=prod_df,
+            date_col=self.date_col,
+            oil_prod_col=self.oil_prod_col,
+            gas_prod_col=self.gas_prod_col,
+            days_produced_col=self.days_produced_col,
+            status_col=self.status_col,
+            shutin_codes=self.shutin_codes,
+            oil_prod_min=self.oil_prod_min,
+            gas_prod_min=self.gas_prod_min,
+        )
+        return analyzer
+
+    def get_production_data_for_well(self, **kw) -> pd.DataFrame | None:
+        html_scraper = self.get_html_scraper()
+        url = html_scraper.get_production_url(kw["prod_url_components"])
+        html = html_scraper.get_html(url)
+        return html_scraper.get_production_data_from_html(html)
+
+    def get_well_data(self, api_num: str, well_name: str = None, **kw) -> WellRecord:
+        raw_prod_df = self.get_production_data_for_well(**kw)
+        if raw_prod_df is None:
+            # No production found for this well.
+            return WellRecord(api_num, well_name, record_access_date=date.today())
+
+        # Extract first/last production dates.
+        analyzer = self.get_analyzer(raw_prod_df)
+        first_date_raw = analyzer.prod_df[self.date_col].min()
+        first_date = date(first_date_raw.year, first_date_raw.month, first_date_raw.day)
+        last_date_raw = analyzer.prod_df[self.date_col].max()
+        # Convert the last date to the date occurring at the end of the month.
+        _, last_day_in_month = monthrange(last_date_raw.year, last_date_raw.month)
+        last_date = date(last_date_raw.year, last_date_raw.month, last_day_in_month)
+
+        well_record = WellRecord(
+            api_num=api_num,
+            well_name=well_name,
+            first_date=first_date,
+            last_date=last_date,
+            record_access_date=date.today(),
+        )
+
+        gaps_ignore_si = analyzer.gaps_by_production_threshold(
+            shutin_as_producing=False
+        )
+        gaps_ignore_si_drgroup = _gaps_df_to_daterangegroup(gaps_ignore_si)
+        for dr in gaps_ignore_si_drgroup:
+            well_record.register_date_range(dr, category=NO_PROD_IGNORE_SHUTIN)
+
+        if None not in (self.shutin_codes, self.status_col):
+            gaps_allow_si = analyzer.gaps_by_production_threshold(
+                shutin_as_producing=True
+            )
+            gaps_allow_si_drgroup = _gaps_df_to_daterangegroup(gaps_allow_si)
+            for dr in gaps_allow_si_drgroup:
+                well_record.register_date_range(dr, category=NO_PROD_BUT_SHUTIN_COUNTS)
+
+        return well_record
+
+
+def _gaps_df_to_daterangegroup(gaps_df: pd.DataFrame) -> DateRangeGroup:
+    """
+    INTERNAL USE:
+
+    Convert a gaps dataframe (as generated by a ``ProductionAnalyzer``)
+    to an equivalent ``DateRangeGroup``.
+
+    :param gaps_df:
+    :return:
+    """
+    group = DateRangeGroup()
+    for _, row in gaps_df.iterrows():
+        start_date = row["start_date"].date()
+        end_date = row["end_date"].date()
+        date_range = DateRange(start_date, end_date)
+        group.add_date_range(date_range)
+    return group
+
+
+__all__ = [
+    "ScraperWellDataCollector",
+]
