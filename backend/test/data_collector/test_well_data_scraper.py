@@ -2,37 +2,24 @@ import unittest
 from datetime import date
 
 from backend.data_collector.well_data_scraper import ScraperWellDataCollector
+from backend.data_collector.state_configs.colorado import COLORADO_CONFIG
 from backend.well_records.standard_categories import (
     NO_PROD_IGNORE_SHUTIN,
     NO_PROD_BUT_SHUTIN_COUNTS,
 )
-
-COLORADO_CONFIG = {
-    "prod_url_template": "https://ecmc.state.co.us/cogisdb/Facility/Production?api_county_code={0}&api_seq_num={1}",
-    "date_col": "First of Month",
-    "oil_prod_col": "Oil Produced",
-    "gas_prod_col": "Gas Produced",
-    "days_produced_col": "Days Produced",
-    "status_col": "Well Status",
-    "auth": None,
-    "shutin_codes": ["SI"],
-    "oil_prod_min": 0,
-    "gas_prod_min": 0,
-}
 
 
 class TestScraperWellDataCollector(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        scraper = ScraperWellDataCollector(**COLORADO_CONFIG)
+        scraper = ScraperWellDataCollector.from_config(COLORADO_CONFIG)
 
         # Note: This well was P&A'd in 2021, and we can expect that the
         # data will never be updated, since it no longer produces.
         api_num = "05-123-27133"
         well_name = "VILLAGE-11-16DU"
-        kw = {"prod_url_components": ["123", "27133"]}
-        cls.well_data = scraper.get_well_data(api_num, well_name, **kw)
+        cls.well_data = scraper.get_well_data(api_num, well_name)
 
         cls.ignore_si_gaps = cls.well_data.date_ranges_by_category(
             category=NO_PROD_IGNORE_SHUTIN
