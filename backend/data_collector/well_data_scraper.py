@@ -14,6 +14,12 @@ https://ecmc.state.co.us/cogisdb/Facility/Production?api_county_code={0}&api_seq
 number (a unique identifier in the format ``05-987-12345``, where the
 middle section ``987`` is the ``api_county_code`` and the last part
 ``12345`` is the ``api_seq_num``. (This example is a fake API number.)
+
+.. note:
+
+    This class relies heavily on a previous project I created for
+    scraping and summarizing production data. See details here:
+    https://github.com/JamesPImes/og_production_analyzer
 """
 
 from __future__ import annotations
