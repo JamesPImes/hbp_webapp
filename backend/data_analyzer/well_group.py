@@ -70,6 +70,11 @@ class WellGroup:
             # dates (i.e., add gaps before earliest records, and after last
             # records, if necessary.)
             normalized_dr_group = DateRangeGroup(original_dr_group.date_ranges)
+            if None in (wr.first_date, wr.last_date) and wr.first_date != wr.last_date:
+                raise ValueError(f"First and last date must both be None, or neither may be None. Fix records for {wr}")
+            if None in (wr.first_date, wr.last_date):
+                continue
+
             if overall_first_date < wr.first_date:
                 normalized_dr_group.add_date_range(
                     DateRange(overall_first_date, wr.first_date - timedelta(days=1))

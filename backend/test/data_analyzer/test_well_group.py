@@ -126,11 +126,51 @@ class TestWellGroup_gaps(unittest.TestCase):
 
     def test_find_gaps_number_found(self):
         self.assertEqual(len(self.gaps), 1)
+
+    def test_find_gaps_start_date(self):
         gap = self.gaps[0]
-        # Start dates match.
         self.assertEqual(self.dr_expected.start_date, gap.start_date)
-        # End dates match.
+
+    def test_find_gaps_end_date(self):
+        gap = self.gaps[0]
         self.assertEqual(self.dr_expected.end_date, gap.end_date)
+
+
+class TestWellGroup_gapsWithEmpty(unittest.TestCase):
+    """Test a well group with one well that had no production reported."""
+
+    @classmethod
+    def setUpClass(cls):
+        wr1 = WellRecord(
+            api_num="05-123-45678",
+            well_name="test well #1",
+            first_date=date(2001, 1, 1),
+            last_date=date(2020, 5, 31),
+        )
+        dr1 = DateRange(start_date=date(2002, 1, 1), end_date=date(2003, 12, 31))
+        wr1.register_date_range(dr1, category="test")
+        ignore_dr = DateRange(start_date=date(2002, 4, 1), end_date=date(2003, 7, 31))
+        wr1.register_date_range(ignore_dr, category="ignore")
+
+        wr2 = WellRecord(
+            api_num="05-123-98765",
+            well_name="test well #2",
+            first_date=None,
+            last_date=None,
+        )
+        wr2.register_empty_category("test")
+
+        wg = WellGroup()
+        wg.add_well_record(wr1)
+        wg.add_well_record(wr2)
+
+        cls.gaps = wg.find_gaps(category="test")
+        cls.dr_expected = DateRange(
+            start_date=date(2002, 1, 1), end_date=date(2003, 12, 31)
+        )
+
+    def test_find_gaps_number_found(self):
+        self.assertEqual(len(self.gaps), 1)
 
     def test_find_gaps_start_date(self):
         gap = self.gaps[0]
