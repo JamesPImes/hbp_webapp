@@ -255,7 +255,13 @@ class ScraperWellDataCollector(WellDataCollector):
         raw_prod_df = self.get_production_data_for_well(url)
         if raw_prod_df is None:
             # No production found for this well.
-            return WellRecord(api_num, well_name, record_access_date=date.today())
+            well_record = WellRecord(
+                api_num, well_name, record_access_date=date.today()
+            )
+            well_record.register_empty_category(NO_PROD_IGNORE_SHUTIN)
+            if None not in (self.shutin_codes, self.status_col):
+                well_record.register_empty_category(NO_PROD_BUT_SHUTIN_COUNTS)
+            return well_record
 
         # Extract first/last production dates.
         analyzer = self.get_analyzer(raw_prod_df)
