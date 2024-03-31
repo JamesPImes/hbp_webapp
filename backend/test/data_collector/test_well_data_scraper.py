@@ -57,5 +57,36 @@ class TestScraperWellDataCollector(unittest.TestCase):
         self.assertEqual(date(2021, 6, 30), gap_dr.end_date)
 
 
+class TestScraperWellDataCollector_empty(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        scraper = ScraperWellDataCollector.from_config(COLORADO_CONFIG)
+
+        # Note: This well never produced.
+        api_num = "05-001-07729"
+        well_name = "CHAMPLIN #15-27"
+        cls.well_data = scraper.get_well_data(api_num, well_name)
+
+        cls.ignore_si_gaps = cls.well_data.date_ranges_by_category(
+            category=NO_PROD_IGNORE_SHUTIN
+        )
+        cls.allow_si_gaps = cls.well_data.date_ranges_by_category(
+            category=NO_PROD_BUT_SHUTIN_COUNTS
+        )
+
+    def test_first_date(self):
+        self.assertIsNone(self.well_data.first_date)
+
+    def test_last_date(self):
+        self.assertIsNone(self.well_data.last_date)
+
+    def test_ignore_si_gaps_total(self):
+        self.assertEqual(0, len(self.ignore_si_gaps))
+
+    def test_allow_si_gaps_total(self):
+        self.assertEqual(0, len(self.allow_si_gaps))
+
+
 if __name__ == "__main__":
     unittest.main()
