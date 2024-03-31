@@ -274,6 +274,7 @@ class ScraperWellDataCollector(WellDataCollector):
             record_access_date=date.today(),
         )
 
+        well_record.register_empty_category(NO_PROD_IGNORE_SHUTIN)
         gaps_ignore_si = analyzer.gaps_by_production_threshold(
             shutin_as_producing=False
         )
@@ -282,6 +283,7 @@ class ScraperWellDataCollector(WellDataCollector):
             well_record.register_date_range(dr, category=NO_PROD_IGNORE_SHUTIN)
 
         if None not in (self.shutin_codes, self.status_col):
+            well_record.register_empty_category(NO_PROD_BUT_SHUTIN_COUNTS)
             gaps_allow_si = analyzer.gaps_by_production_threshold(
                 shutin_as_producing=True
             )
