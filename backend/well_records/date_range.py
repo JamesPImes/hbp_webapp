@@ -158,7 +158,7 @@ class DateRange:
         return dr
 
     def __str__(self):
-        return f"<{self.start_date:%Y-%m-%d}::{self.end_date:%Y-%m-%d}>"
+        return f"{self.start_date:%Y-%m-%d}::{self.end_date:%Y-%m-%d}"
 
     def __repr__(self):
         return str(self)
