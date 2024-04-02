@@ -122,7 +122,6 @@ class WellRecord:
             wr.register_empty_category(category)
             for dr_raw in date_ranges_raw:
                 dr = unpack_date_ranges_func(dr_raw)
-                print(dr, type(dr))
                 wr.register_date_range(dr, category)
         return wr
 
