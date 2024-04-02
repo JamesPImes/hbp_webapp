@@ -4,17 +4,21 @@ from typing import Callable
 from datetime import date, datetime, timedelta
 
 
-def _default_parse_func(date_str: str) -> (date, date):
+def _default_daterange_parse_func(date_str: str) -> DateRange:
     """
-    :param date_str: "2014-01-01::2015-01-09"
+    INTERNAL USE:
+
+    Split a date string that follows the default schema
+    (``YYYY-MM-DD::YYYY-MM-DD``) into a ``DateRange`` object.
+    :param date_str: A string of the form ``'2014-01-01::2015-01-09'``
+     that encodes a date range.
     :return:
     """
-    # TODO: Move this to a handler class.
     try:
         s1, s2 = date_str.split("::")
         date1 = datetime.strptime(s1, "%Y-%m-%d").date()
         date2 = datetime.strptime(s2, "%Y-%m-%d").date()
-        return (date1, date2)
+        return DateRange(date1, date2)
     except ValueError:
         raise ValueError("Date range must be in the format YYYY-MM-DD::YYYY-MM-DD")
 
@@ -40,27 +44,6 @@ class DateRange:
         years = self.end_date.year - self.start_date.year
         months = self.end_date.month - self.start_date.month
         return years * 12 + months + 1
-
-    @staticmethod
-    def from_string(date_str: str, parse_func: Callable = None) -> DateRange:
-        """
-        Create a ``DateRange`` from a string.
-
-        Default assumes the format ``"YYYY-MM-DD::YYYY-MM-DD"``. If a
-        different format is used, ``parse_func`` must also be provided,
-        being a function that will split the string into two
-        ``datetime.date`` objects.
-
-        :param date_str: The string to parse into a ``DateRange``.
-        :param parse_func: The function to split a string into two
-         ``datetime.date`` objects. (Only required if ``date_str`` is
-         not in the expected format.)
-        :return: The new ``DateRange`` object.
-        """
-        if parse_func is None:
-            parse_func = _default_parse_func
-        date1, date2 = parse_func(date_str)
-        return DateRange(date1, date2)
 
     def is_contiguous_with(self, other: DateRange, days_tolerance: int = 1) -> bool:
         """
@@ -175,7 +158,7 @@ class DateRange:
         return dr
 
     def __str__(self):
-        return f"<{self.start_date:%Y-%m-%d}::{self.end_date:%Y-%m-%d}>"
+        return f"{self.start_date:%Y-%m-%d}::{self.end_date:%Y-%m-%d}"
 
     def __repr__(self):
         return str(self)

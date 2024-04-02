@@ -2,3 +2,4 @@ Flask~=3.0.2
 pytest
 git+https://github.com/JamesPImes/og_production_analyzer
 pandas~=2.2.1
+pymongo[srv]
