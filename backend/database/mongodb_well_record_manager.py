@@ -4,8 +4,8 @@ from datetime import datetime
 from pymongo import MongoClient
 
 from backend.well_records.well_record import WellRecord
-from mongodb_manager import MongoDBManager
-from well_record_manager import WellRecordManager
+from .mongodb_manager import MongoDBManager
+from .well_record_manager import WellRecordManager
 
 
 class MongoDBWellRecordManager(MongoDBManager, WellRecordManager):
