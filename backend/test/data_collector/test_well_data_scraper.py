@@ -11,6 +11,8 @@ from backend.well_records.standard_categories import (
 
 class TestScraperWellDataCollector(unittest.TestCase):
 
+    well_data = None
+
     @classmethod
     def setUpClass(cls):
         scraper = ScraperWellDataCollector.from_config(COLORADO_CONFIG)
@@ -58,6 +60,8 @@ class TestScraperWellDataCollector(unittest.TestCase):
 
 
 class TestScraperWellDataCollector_empty(unittest.TestCase):
+
+    well_data = None
 
     @classmethod
     def setUpClass(cls):
