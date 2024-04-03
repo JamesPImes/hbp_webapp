@@ -11,11 +11,11 @@ import unittest
 
 from pymongo import MongoClient
 
-from backend.data_analyzer.well_group import WellGroup
-from backend.data_collector.well_data_scraper import ScraperWellDataCollector
-from backend.data_collector.state_configs.colorado import COLORADO_CONFIG
-from backend.well_records.standard_categories import NO_PROD_IGNORE_SHUTIN
-from backend.database.mongodb_well_record_manager import MongoDBWellRecordManager
+from src.backend.data_analyzer.well_group import WellGroup
+from src.backend.data_collector.well_data_scraper import ScraperWellDataCollector
+from src.backend.data_collector.state_configs.colorado import COLORADO_CONFIG
+from src.backend.well_records.standard_categories import NO_PROD_IGNORE_SHUTIN
+from src.backend.database.mongodb_well_record_manager import MongoDBWellRecordManager
 
 TEST_DB_NAME = "testing_integration"
 
