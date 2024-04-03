@@ -1,0 +1,148 @@
+
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="X-UA-Compatible" content="IE=edge" /><title>
+	Production Data
+</title><link id="Stylesheet" rel="stylesheet" type="text/css" href="../Styles.css" />
+     <style>
+        .grdContent
+        {
+            width: 100%;
+            border: solid 1px black;
+            min-width: 100%;
+        }
+        .header {
+
+            background-color: #006633;
+            font-family:  Helvetica Neue, Helvetica, Arial, sans-serif;
+            color: #ffffff;
+            border: solid 1px black;
+            height: 25px;
+            text-align: center;
+            font-size: 11px;
+            position: absolute;
+        }
+         .rows {
+             background-color: #ffffff;
+             font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+             font-size: 11px;
+             color: #000000;
+             min-height: 16px;
+             text-align: left;
+             border: solid 1px black;
+         }
+
+             .rows:hover {
+                 background-color: #FFD700;
+                 font-family: Arial;
+                 color: blue;
+                 text-align: left;
+             }
+        .selectedrow {
+            background-color: #000066;
+            font-family: Arial;
+            color: #ffffff;
+            font-weight: bold;
+            text-align: left;
+        }
+        .mydatagrid a /** PAGING ICONS  **/ {
+            background-color: Transparent;
+            padding: 4px 4px 4px 4px;
+            color: #FFD700;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .mygrdContent a:hover
+        {
+            background-color: #ffffff;
+            color: #006633;
+        }
+        .mygrdContent span /** CURRENT PAGE ICON **/ {
+            background-color: #000066;
+            color: #FFD700;
+            padding: 5px 5px 5px 5px;
+        }
+        .pager {
+            background-color: #000066;
+            font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+            color:#FFD700;
+            height: 18px;
+            text-align: left;
+        }
+        .mygrdContent td {
+            padding: 4px;
+        }
+        .mygrdContent th {
+            padding: 4px;
+        }
+    </style>
+</head>
+<body>
+<form method="post" action="./Production?api_county_code=001&amp;api_seq_num=07729" id="formProductionRpt">
+<div class="aspNetHidden">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="zDRnKNP7a0JMJv2B5mtZCPPcNC4EsH0FTkN9rSUQ931jQtO6tHVpPzjS+SAHjjieFE/qWUg20f/Tw5B1yj6uRSHFpsLGV9LwAsx9qe3tcGoUm513MJftS+Oa5mowrfWc4qbV2qJvi9dwpj+VkZva8Ne+ISFCWhQ8lEtlVGbUWo0Baf3TQChj3Tm7NJXecA51slZZhR0gZ/LMSks5npv75FNny0/FuKH0lGFDCH9/EkbbdxRPf6KZPqqka36crN5ZA5ApaX4eYn5mIdVuxHocO/XvyNkKIWEkFExEudCZezOZDrV4fnHXzatD+veRLIqcV65e9GeZ5gT4eHhIw0O6jHLv1nh1jMWtiwDaxUd2wMF0cWBYg5A0rX+P9i6B2Y8yJCj6YgLMQuz7RjsCSORgl09M8zz49BzvW2c3+gssHm/PKX4/tGMh3v8uF8qHLjJq5TjZk6chlUBK8BK8xDurEmqv7FmhsqQmHXrp7ZUrymw=" />
+</div>
+
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="2473BBB6" />
+</div>
+<table style="width: 100%;">
+    <tr>
+        <td>
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table style="width:60%; background-color:#FFD700;">
+                <tr>
+                    <td>
+                        <span id="lblHeading" class="labelLargeBold" style="background-color:Gold;">Production Data</span>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table style="width:60%;" border="1" display: border-color: black; cellspacing="0";><tr bgcolor="lightgray"><td align="center"><span class="labelSmall"><strong>API #:</strong></span></td><td align="center"><span class="labelSmall"><strong>Facility Name/Number:</strong></span></td><td align="center"><span class="labelSmall"><strong>Current Operator Name:</strong></span></td><td align="center"><span class="labelSmall"><strong>Operator #:</strong></span></td><td align="center"><span class="labelSmall"><strong>Location:</strong></span></td><td align="center"><span class="labelSmall"><strong>Field:</strong></span></td><td align="center"><span class="labelSmall"><strong>Field Code:</strong></span></td></tr><tr><td><span class="labelSmall">05-001-07729</span></td><td align="center"><span class="labelSmall"><a title="View well scout card." target="_blank" href="FacilityDetail.aspx?api=00107729">CHAMPLIN-15-27          </a></span></td><td align="center"><span class="labelSmall">CHANDLER & ASSOCIATES LLC                         </span></td><td align="center"><span class="labelSmall">15850</span></td><td align="center"><span class="labelSmall">SWSE   27 1S     59W     6</span></td><td align="center"><span class="labelSmall">MUDDY CREEK                   </span></td><td align="center"><span class="labelSmall">57000</span></td></table>
+        </td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>
+
+            &nbsp;
+
+            &nbsp;
+
+        </td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>
+            <span id="lblSort" class="labelSmall" style="color:Red;font-size:14pt;">No Production Records Found</span>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div style="height:800px; width:100%; overflow:auto;">
+
+           </div>
+        </td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+    </tr>
+</table>
+</form>
+</body>
+</html>
+

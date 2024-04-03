@@ -1,34 +1,46 @@
 import unittest
 from datetime import date
+from pathlib import Path
 
-from backend.data_collector.well_data_scraper import ScraperWellDataCollector
-from backend.data_collector.state_configs.colorado import COLORADO_CONFIG
-from backend.well_records.standard_categories import (
+from src.backend.well_records.well_record import WellRecord
+from src.backend.data_collector.well_data_scraper import ScraperWellDataCollector
+from src.backend.data_collector.state_configs.colorado import COLORADO_CONFIG
+from src.backend.well_records.standard_categories import (
     NO_PROD_IGNORE_SHUTIN,
     NO_PROD_BUT_SHUTIN_COUNTS,
 )
 
 
 class TestScraperWellDataCollector(unittest.TestCase):
+    """Test scraping records for a well with reported production."""
 
-    well_data = None
+    # Note: This well was P&A'd in 2021.
+    api_num = "05-123-27133"
+    well_name = "VILLAGE-11-16DU"
+    html_mock_fp: str = Path(r"./_test_data/testpage_05-123-27133.html")
+    html_mock: str = None
+    well_data: WellRecord = None
 
     @classmethod
     def setUpClass(cls):
         scraper = ScraperWellDataCollector.from_config(COLORADO_CONFIG)
-
-        # Note: This well was P&A'd in 2021, and we can expect that the
-        # data will never be updated, since it no longer produces.
-        api_num = "05-123-27133"
-        well_name = "VILLAGE-11-16DU"
-        cls.well_data = scraper.get_well_data(api_num, well_name)
-
+        cls.extracted_url = scraper.get_url(api_num=cls.api_num)
+        cls.expected_url = r"https://ecmc.state.co.us/cogisdb/Facility/Production?api_county_code=123&api_seq_num=27133"
+        # Mock the scraped raw HTML from a saved local copy.
+        with open(Path(cls.html_mock_fp), mode="r") as file:
+            cls.html_mock = "\n".join(file.readlines())
+        cls.well_data = scraper.extract_well_record_from_html(
+            cls.html_mock, cls.api_num
+        )
         cls.ignore_si_gaps = cls.well_data.date_ranges_by_category(
             category=NO_PROD_IGNORE_SHUTIN
         )
         cls.allow_si_gaps = cls.well_data.date_ranges_by_category(
             category=NO_PROD_BUT_SHUTIN_COUNTS
         )
+
+    def test_get_url(self):
+        self.assertEqual(self.expected_url, self.extracted_url)
 
     def test_first_date(self):
         self.assertEqual(date(2009, 7, 1), self.well_data.first_date)
@@ -60,24 +72,36 @@ class TestScraperWellDataCollector(unittest.TestCase):
 
 
 class TestScraperWellDataCollector_empty(unittest.TestCase):
+    """Test scraping records for a well with no reported production."""
 
-    well_data = None
+    # Note: This well never produced.
+    api_num = "05-001-07729"
+    well_name = "CHAMPLIN #15-27"
+    html_mock_fp: str = Path(r"./_test_data/testpage_05-001-07729.html")
+    html_mock: str = None
+    well_data: WellRecord = None
 
     @classmethod
     def setUpClass(cls):
+
         scraper = ScraperWellDataCollector.from_config(COLORADO_CONFIG)
-
-        # Note: This well never produced.
-        api_num = "05-001-07729"
-        well_name = "CHAMPLIN #15-27"
-        cls.well_data = scraper.get_well_data(api_num, well_name)
-
+        cls.extracted_url = scraper.get_url(api_num=cls.api_num)
+        cls.expected_url = r"https://ecmc.state.co.us/cogisdb/Facility/Production?api_county_code=001&api_seq_num=07729"
+        # Mock the scraped raw HTML from a saved local copy.
+        with open(Path(cls.html_mock_fp), mode="r") as file:
+            cls.html_mock = "\n".join(file.readlines())
+        cls.well_data = scraper.extract_well_record_from_html(
+            cls.html_mock, cls.api_num
+        )
         cls.ignore_si_gaps = cls.well_data.date_ranges_by_category(
             category=NO_PROD_IGNORE_SHUTIN
         )
         cls.allow_si_gaps = cls.well_data.date_ranges_by_category(
             category=NO_PROD_BUT_SHUTIN_COUNTS
         )
+
+    def test_get_url(self):
+        self.assertEqual(self.expected_url, self.extracted_url)
 
     def test_first_date(self):
         self.assertIsNone(self.well_data.first_date)
