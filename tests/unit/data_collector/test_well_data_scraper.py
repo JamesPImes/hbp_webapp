@@ -17,7 +17,9 @@ class TestScraperWellDataCollector(unittest.TestCase):
     # Note: This well was P&A'd in 2021.
     api_num = "05-123-27133"
     well_name = "VILLAGE-11-16DU"
-    html_mock_fp: Path = Path(__file__).parent / r"_test_data/testpage_05-123-27133.html"
+    html_mock_fp: Path = (
+        Path(__file__).parent / r"_test_data/testpage_05-123-27133.html"
+    )
     html_mock: str = None
     well_data: WellRecord = None
 
@@ -41,6 +43,9 @@ class TestScraperWellDataCollector(unittest.TestCase):
 
     def test_get_url(self):
         self.assertEqual(self.expected_url, self.extracted_url)
+
+    def test_scraped_well_name(self):
+        self.assertEqual(self.well_name, self.well_data.well_name)
 
     def test_first_date(self):
         self.assertEqual(date(2009, 7, 1), self.well_data.first_date)
@@ -76,8 +81,10 @@ class TestScraperWellDataCollector_empty(unittest.TestCase):
 
     # Note: This well never produced.
     api_num = "05-001-07729"
-    well_name = "CHAMPLIN #15-27"
-    html_mock_fp: Path = Path(__file__).parent / r"_test_data/testpage_05-001-07729.html"
+    well_name = "CHAMPLIN-15-27"
+    html_mock_fp: Path = (
+        Path(__file__).parent / r"_test_data/testpage_05-001-07729.html"
+    )
     html_mock: str = None
     well_data: WellRecord = None
 

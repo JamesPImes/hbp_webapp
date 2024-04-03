@@ -52,6 +52,7 @@ class ScraperWellDataCollector(WellDataCollector):
         oil_prod_min: int = 0,
         gas_prod_min: int = 0,
         url_component_function: Callable = None,
+        well_name_function: Callable = None,
         auth=None,
     ) -> None:
         """
@@ -98,6 +99,8 @@ class ScraperWellDataCollector(WellDataCollector):
          ``url_component_function`` should take in a dict (named
          ``kw``), pull ``kw['api_num']``, and return a list of two
          strings, such as ``['987', '12345']``.
+        :param well_name_function: A function that will take in the html
+         of a production records page and extract the well name.
         :param auth: Only needed for websites that require
          authorization. For example, North Dakota's DMR website requires
          a subscription to access production records; and ``auth`` would
@@ -117,6 +120,7 @@ class ScraperWellDataCollector(WellDataCollector):
         self.oil_prod_min = oil_prod_min
         self.gas_prod_min = gas_prod_min
         self.url_component_function: Callable = url_component_function
+        self.well_name_function: Callable = well_name_function
 
     @staticmethod
     def from_config(config: dict) -> ScraperWellDataCollector:
@@ -236,7 +240,8 @@ class ScraperWellDataCollector(WellDataCollector):
 
     def scrape_well_name_from_html(self, html: str) -> str | None:
         well_name = None
-        # TODO: Scrape wellname.
+        if self.well_name_function is not None:
+            well_name = self.well_name_function(html=html)
         return well_name
 
     def extract_well_record_from_html(
