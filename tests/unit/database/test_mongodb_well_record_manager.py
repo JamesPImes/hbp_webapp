@@ -9,7 +9,7 @@ from backend.well_records.standard_categories import (
     NO_PROD_IGNORE_SHUTIN,
     NO_PROD_BUT_SHUTIN_COUNTS,
 )
-from src.backend.database import MongoDBWellRecordManager
+from backend.database.mongodb_well_record_manager import MongoDBWellRecordManager
 
 
 TEST_DB_NAME = "testing_wrm"
