@@ -103,5 +103,6 @@ class TestWellRecord_fromDict(unittest.TestCase):
         number_of_date_ranges = len(date_ranges_for_test_cat.date_ranges)
         self.assertEqual(0, number_of_date_ranges)
 
+
 if __name__ == "__main__":
     unittest.main()
