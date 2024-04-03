@@ -43,12 +43,12 @@ class TestScrapeAndStore(unittest.TestCase):
     # never be modified.
     api_num1 = "05-123-27133"
     well_name1 = "VILLAGE-11-16DU"
-    html_mock_fp1: Path = Path(__file__).parent.parent / r"unit/data_collector/_test_data/testpage_05-123-27133.html"
+    html_mock_fp1: Path = Path(__file__).parent.parent / r"_test_data/testpage_05-123-27133_html"
     html_mock1: str = None
 
     api_num2 = "05-001-07729"
     well_name2 = "CHAMPLIN #15-27"
-    html_mock_fp2: Path = Path(__file__).parent.parent / r"unit/data_collector/_test_data/testpage_05-001-07729.html"
+    html_mock_fp2: Path = Path(__file__).parent.parent / r"_test_data/testpage_05-001-07729_html"
     html_mock2: str = None
 
     @classmethod

@@ -18,7 +18,7 @@ class TestScraperWellDataCollector(unittest.TestCase):
     api_num = "05-123-27133"
     well_name = "VILLAGE-11-16DU"
     html_mock_fp: Path = (
-        Path(__file__).parent / r"_test_data/testpage_05-123-27133.html"
+        Path(__file__).parent.parent.parent / r"_test_data/testpage_05-123-27133_html"
     )
     html_mock: str = None
     well_data: WellRecord = None
@@ -83,7 +83,7 @@ class TestScraperWellDataCollector_empty(unittest.TestCase):
     api_num = "05-001-07729"
     well_name = "CHAMPLIN-15-27"
     html_mock_fp: Path = (
-        Path(__file__).parent / r"_test_data/testpage_05-001-07729.html"
+        Path(__file__).parent.parent.parent / r"_test_data/testpage_05-001-07729_html"
     )
     html_mock: str = None
     well_data: WellRecord = None
