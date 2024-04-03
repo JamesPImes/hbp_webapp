@@ -63,6 +63,7 @@ class WellGroup:
             if category not in wr.registered_categories():
                 raise KeyError(f"Must registered category {category!r} for well {wr}")
 
+        gaps_meaningfully_initialized = False
         gaps = DateRangeGroup()
         for i, wr in enumerate(self.well_records):
             original_dr_group = wr.date_ranges_by_category(category)
@@ -71,7 +72,9 @@ class WellGroup:
             # records, if necessary.)
             normalized_dr_group = DateRangeGroup(original_dr_group.date_ranges)
             if None in (wr.first_date, wr.last_date) and wr.first_date != wr.last_date:
-                raise ValueError(f"First and last date must both be None, or neither may be None. Fix records for {wr}")
+                raise ValueError(
+                    f"First and last date must both be None, or neither may be None. Fix records for {wr}"
+                )
             if None in (wr.first_date, wr.last_date):
                 continue
 
@@ -84,9 +87,10 @@ class WellGroup:
                     DateRange(wr.last_date + timedelta(days=1), overall_last_date)
                 )
 
-            if i == 0:
+            if i == 0 or not gaps_meaningfully_initialized:
                 # Populate the initial gaps with the first well's date ranges.
                 gaps = normalized_dr_group
+                gaps_meaningfully_initialized = True
                 continue
             if len(gaps.date_ranges) == 0:
                 # Once we've removed all date ranges, there can never be future gaps.
