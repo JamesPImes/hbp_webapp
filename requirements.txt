@@ -3,3 +3,4 @@ pytest
 git+https://github.com/JamesPImes/og_production_analyzer
 pandas~=2.2.1
 pymongo[srv]
+python-dotenv
