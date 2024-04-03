@@ -226,33 +226,32 @@ class ScraperWellDataCollector(WellDataCollector):
         components = self.url_component_function(**kw)
         return self.prod_url_template.format(*components)
 
-    def get_well_data(self, api_num: str, well_name: str = None, **kw) -> WellRecord:
-        """
-        Get a ``WellRecord`` for the well, based on the specified API
-        number, well name, and any other specified kwargs.
+    def get_html(self, url: str) -> str:
+        html_scraper = self.get_html_scraper()
+        return html_scraper.get_html(url)
 
-        To load from a specific URL, pass ``url=som_url`` as a kwarg,
-        which will ignore
+    def scrape_prod_records_from_html(self, html: str) -> pd.DataFrame:
+        html_scraper = self.get_html_scraper()
+        return html_scraper.get_production_data_from_html(html)
 
-        :param api_num: The unique API number for this well.
-        :param well_name: The well name for this well.
-        :param url: Load from this URL exactly, overriding any other
-         configured behavior that might try to determine the URL
-         automatically.
-        :param kw: Any other keyword arguments that might be necessary
-         (e.g., for the ``.url_component_function()`` configured for a
-         given instance of this class).
-        :return: A ``WellRecord`` showing the configured date ranges
-         (e.g., gaps in production).
+    def scrape_well_name_from_html(self, html: str) -> str | None:
+        well_name = None
+        # TODO: Scrape wellname.
+        return well_name
+
+    def extract_well_record_from_html(
+        self, html: str, api_num: str, well_name: str = None
+    ) -> WellRecord:
         """
-        if "api_num" not in kw.keys():
-            kw["api_num"] = api_num
-        if "well_name" not in kw.keys():
-            kw["well_name"] = well_name
-        # Pull the provided URL from the kwargs, if they exist. Otherwise,
-        # determine the URL from `.get_url()` method defined for this class.
-        url = kw.get("url", self.get_url(**kw))
-        raw_prod_df = self.get_production_data_for_well(url)
+        Extract data for a well from HTML and generate a ``WellRecord``.
+        :param html:
+        :param api_num:
+        :param well_name:
+        :return:
+        """
+        if well_name is None:
+            well_name = self.scrape_well_name_from_html(html)
+        raw_prod_df = self.scrape_prod_records_from_html(html)
         if raw_prod_df is None:
             # No production found for this well.
             well_record = WellRecord(
@@ -279,7 +278,6 @@ class ScraperWellDataCollector(WellDataCollector):
             last_date=last_date,
             record_access_date=date.today(),
         )
-
         well_record.register_empty_category(NO_PROD_IGNORE_SHUTIN)
         gaps_ignore_si = analyzer.gaps_by_production_threshold(
             shutin_as_producing=False
@@ -287,7 +285,6 @@ class ScraperWellDataCollector(WellDataCollector):
         gaps_ignore_si_drgroup = _gaps_df_to_daterangegroup(gaps_ignore_si)
         for dr in gaps_ignore_si_drgroup:
             well_record.register_date_range(dr, category=NO_PROD_IGNORE_SHUTIN)
-
         if None not in (self.shutin_codes, self.status_col):
             well_record.register_empty_category(NO_PROD_BUT_SHUTIN_COUNTS)
             gaps_allow_si = analyzer.gaps_by_production_threshold(
@@ -296,8 +293,36 @@ class ScraperWellDataCollector(WellDataCollector):
             gaps_allow_si_drgroup = _gaps_df_to_daterangegroup(gaps_allow_si)
             for dr in gaps_allow_si_drgroup:
                 well_record.register_date_range(dr, category=NO_PROD_BUT_SHUTIN_COUNTS)
-
         return well_record
+
+    def get_well_data(self, api_num: str, well_name: str = None, **kw) -> WellRecord:
+        """
+        Get a ``WellRecord`` for the well, based on the specified API
+        number, well name, and any other specified kwargs.
+
+        To load from a specific URL, pass ``url=some_url`` as a kwarg,
+        which will ignore
+
+        :param api_num: The unique API number for this well.
+        :param well_name: The well name for this well.
+        :param url: Load from this URL exactly, overriding any other
+         configured behavior that might try to determine the URL
+         automatically.
+        :param kw: Any other keyword arguments that might be necessary
+         (e.g., for the ``.url_component_function()`` configured for a
+         given instance of this class).
+        :return: A ``WellRecord`` showing the configured date ranges
+         (e.g., gaps in production).
+        """
+        if "api_num" not in kw.keys():
+            kw["api_num"] = api_num
+        if "well_name" not in kw.keys():
+            kw["well_name"] = well_name
+        # Pull the provided URL from the kwargs, if they exist. Otherwise,
+        # determine the URL from `.get_url()` method defined for this class.
+        url = kw.get("url", self.get_url(**kw))
+        html = self.get_html(url)
+        return self.extract_well_record_from_html(html, api_num, well_name)
 
 
 def _gaps_df_to_daterangegroup(gaps_df: pd.DataFrame) -> DateRangeGroup:
