@@ -40,6 +40,7 @@ jobs:
         echo MONGO_CONNECTION_STRING_TEST=${{ secrets.MONGO_CONNECTION_STRING_TEST }} >> .env
         echo DATABASE_NAME_TEST=hbp_webapp_test >> .env
         echo WELL_RECORDS_COLLECTION_TEST=well_records_test >> .env
+        echo ${{ secrets.TESTING_NONSENSE }}
     - name: Test with pytest
       run: |
         pytest
