@@ -10,18 +10,21 @@ Integration test for the following:
 import unittest
 from pathlib import Path
 
+from mongomock import MongoClient
+
 from backend.data_analyzer.well_group import WellGroup
 from backend.data_collector.well_data_scraper import ScraperWellDataCollector
 from backend.data_collector.state_configs.colorado import COLORADO_CONFIG
 from backend.well_records.standard_categories import NO_PROD_IGNORE_SHUTIN
-from backend.database.mongodb_well_record_manager import (
-    MongoDBWellRecordManager,
-    get_well_record_manager_for_environment,
-)
+from backend.database.mongodb_well_record_manager import MongoDBWellRecordManager
 
 
+# Use a mongomock.MongoClient instead of (real) pymongo.MongoClient.
+mock_connection = MongoClient("localhost", 27017)
 # MongoDBWellRecordManager handles interactions with the database.
-WRM = get_well_record_manager_for_environment("TEST")
+WRM = MongoDBWellRecordManager(
+    mock_connection, "hbp_webapp_test", well_records_collection_name="well_records_test"
+)
 
 
 def drop_test_collection():

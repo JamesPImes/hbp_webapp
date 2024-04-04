@@ -1,15 +1,13 @@
 import unittest
 from datetime import date
 
+from mongomock import MongoClient
+
 from backend.well_records.well_record import WellRecord
 from backend.well_records.date_range import DateRange
 from backend.well_records.standard_categories import (
     NO_PROD_IGNORE_SHUTIN,
     NO_PROD_BUT_SHUTIN_COUNTS,
-)
-from backend.database.mongodb_well_record_manager import (
-    MongoDBWellRecordManager,
-    get_well_record_manager_for_environment,
 )
 from backend.database.mongodb_well_record_manager import MongoDBWellRecordManager
 
@@ -33,8 +31,12 @@ def get_example_well_record():
     return record
 
 
+# Use a mongomock.MongoClient instead of (real) pymongo.MongoClient.
+mock_connection = MongoClient("localhost", 27017)
 # MongoDBWellRecordManager handles interactions with the database.
-WRM = get_well_record_manager_for_environment("TEST")
+WRM = MongoDBWellRecordManager(
+    mock_connection, "hbp_webapp_test", well_records_collection_name="well_records_test"
+)
 EXAMPLE_RECORD = get_example_well_record()
 
 
@@ -111,7 +113,6 @@ class TestMongoDBWellRecordManager_findSuccessful(unittest.TestCase):
 
 class TestMongoDBWellRecordManager_findUnsuccessful(unittest.TestCase):
 
-    wrm: MongoDBWellRecordManager = get_well_record_manager_for_environment("TEST")
     example_record = EXAMPLE_RECORD
     recovered_record = None
 
@@ -131,7 +132,6 @@ class TestMongoDBWellRecordManager_findUnsuccessful(unittest.TestCase):
 
 class TestMongoDBWellRecordManager_update(unittest.TestCase):
 
-    wrm: MongoDBWellRecordManager = get_well_record_manager_for_environment("TEST")
     example_record = EXAMPLE_RECORD
     updated_example_record = None
     recovered_record = None
@@ -201,7 +201,6 @@ class TestMongoDBWellRecordManager_update(unittest.TestCase):
 
 class TestMongoDBWellRecordManager_delete(unittest.TestCase):
 
-    wrm: MongoDBWellRecordManager = get_well_record_manager_for_environment("TEST")
     example_record = EXAMPLE_RECORD
     updated_example_record = None
     original_recovered_record = None
@@ -211,13 +210,9 @@ class TestMongoDBWellRecordManager_delete(unittest.TestCase):
     def setUpClass(cls):
         drop_test_collection()
         WRM.insert_well_record(cls.example_record)
-        cls.original_recovered_record = WRM.find_well_record(
-            cls.example_record.api_num
-        )
+        cls.original_recovered_record = WRM.find_well_record(cls.example_record.api_num)
         WRM.delete_well_record(cls.example_record.api_num)
-        cls.final_recovered_record = WRM.find_well_record(
-            cls.example_record.api_num
-        )
+        cls.final_recovered_record = WRM.find_well_record(cls.example_record.api_num)
 
     @classmethod
     def tearDownClass(cls) -> None:
