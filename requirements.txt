@@ -1,7 +1,8 @@
+git+https://github.com/JamesPImes/og_production_analyzer@v0.2.1
 Flask~=3.0.2
 pytest
-git+https://github.com/JamesPImes/og_production_analyzer
 pandas~=2.2.1
-pymongo[srv]
-python-dotenv
-beautifulsoup4
+pymongo[srv]~=4.6.3
+python-dotenv~=1.0.1
+beautifulsoup4~=4.12.3
+gunicorn
