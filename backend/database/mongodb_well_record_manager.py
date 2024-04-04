@@ -18,6 +18,7 @@ class MongoDBWellRecordManager(MongoDBManager, WellRecordManager):
         self, connection: MongoClient, db_name: str, well_records_collection_name: str
     ) -> None:
         super().__init__(connection, db_name)
+        self.well_records_collection_name = well_records_collection_name
         self.well_records_collection = self.database[well_records_collection_name]
 
     @staticmethod
