@@ -117,18 +117,17 @@ def get_well_record_manager_for_environment(
 ) -> MongoDBWellRecordManager:
     """
     Get a ``MongoDBWellRecordManager`` for the specified environment
-    (``'PROD'``, ``'DEV'``, or ``'TEST'``).
+    (``'PROD'``, ``'DEV'``, or ``'TEST'``; or another environment
+    category specified in the ``.env`` file -- see ``.env.example`` for
+    details).
 
-    :param environment: ``'PROD'``, ``'DEV'``, or ``'TEST'``. (Raises
-    ``EnvironmentError`` if test server and database are not configured
-    in ``.env``.)
+    :param environment: ``'PROD'``, ``'DEV'``, ``'TEST'``, etc. (Will
+     raise an ``EnvironmentError`` if the necessary environment
+     variables for this environment are not specified in the ``.env``
+     file.)
+    :return: A configured ``MongoDBWellRecordManager``.
     """
 
-    environment = environment.upper()
-    if environment not in ("PROD", "DEV", "TEST"):
-        raise ValueError(
-            f"Invalid environment {environment!r}. Must be PROD, DEV or TEST."
-        )
     connection = get_mongo_client_for_environment(environment)
     db_name = os.environ.get(f"DATABASE_NAME_{environment}")
     if db_name is None:
