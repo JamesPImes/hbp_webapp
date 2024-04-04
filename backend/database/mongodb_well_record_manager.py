@@ -1,11 +1,17 @@
 from __future__ import annotations
+import os
 from datetime import datetime
 
 from pymongo import MongoClient
+import dotenv
 
 from backend.well_records.well_record import WellRecord
-from .mongodb_manager import MongoDBManager
 from .well_record_manager import WellRecordManager
+from .mongodb_manager import MongoDBManager
+from .mongodb_loader import get_mongo_client_for_environment
+
+
+dotenv.load_dotenv()
 
 
 class MongoDBWellRecordManager(MongoDBManager, WellRecordManager):
@@ -106,6 +112,42 @@ class MongoDBWellRecordManager(MongoDBManager, WellRecordManager):
         return None
 
 
+def get_well_record_manager_for_environment(
+    environment: str,
+) -> MongoDBWellRecordManager:
+    """
+    Get a ``MongoDBWellRecordManager`` for the specified environment
+    (``'PROD'``, ``'DEV'``, or ``'TEST'``).
+
+    :param environment: ``'PROD'``, ``'DEV'``, or ``'TEST'``. (Raises
+    ``EnvironmentError`` if test server and database are not configured
+    in ``.env``.)
+    """
+
+    environment = environment.upper()
+    if environment not in ("PROD", "DEV", "TEST"):
+        raise ValueError(
+            f"Invalid environment {environment!r}. Must be PROD, DEV or TEST."
+        )
+    connection = get_mongo_client_for_environment(environment)
+    db_name = os.environ.get(f"DATABASE_NAME_{environment}")
+    if db_name is None:
+        raise EnvironmentError(
+            f"Specify DATABASE_NAME_{environment} environment variable."
+        )
+    collection_name = os.environ.get(f"WELL_RECORDS_COLLECTION_{environment}")
+    if collection_name is None:
+        raise EnvironmentError(
+            f"Specify WELL_RECORDS_COLLECTION_{environment} environment variable."
+        )
+    return MongoDBWellRecordManager(
+        connection,
+        db_name=db_name,
+        well_records_collection_name=collection_name,
+    )
+
+
 __all__ = [
     "MongoDBWellRecordManager",
+    "get_well_record_manager_for_environment",
 ]
