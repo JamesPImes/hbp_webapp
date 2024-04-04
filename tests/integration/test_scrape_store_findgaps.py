@@ -7,33 +7,29 @@ Integration test for the following:
     production gaps across the two wells.
 """
 
-import os
 import unittest
 from pathlib import Path
-
-from pymongo import MongoClient
 
 from backend.data_analyzer.well_group import WellGroup
 from backend.data_collector.well_data_scraper import ScraperWellDataCollector
 from backend.data_collector.state_configs.colorado import COLORADO_CONFIG
 from backend.well_records.standard_categories import NO_PROD_IGNORE_SHUTIN
-from backend.database.mongodb_well_record_manager import MongoDBWellRecordManager
-
-TEST_DB_NAME = "testing_integration"
-
-
-def get_connection():
-    return MongoClient("localhost", 27017)
+from backend.database.mongodb_well_record_manager import (
+    MongoDBWellRecordManager,
+    get_well_record_manager_for_environment,
+)
 
 
-def drop_test_db(connection):
-    connection.drop_database(TEST_DB_NAME)
+# MongoDBWellRecordManager handles interactions with the database.
+WRM = get_well_record_manager_for_environment("TEST")
+
+
+def drop_test_collection():
+    WRM.database.drop_collection(WRM.well_records_collection_name)
 
 
 class TestScrapeAndStore(unittest.TestCase):
 
-    connection = get_connection()
-    wrm: MongoDBWellRecordManager = None
     well_group = WellGroup()
     scraper: ScraperWellDataCollector = None
 
@@ -43,18 +39,21 @@ class TestScrapeAndStore(unittest.TestCase):
     # never be modified.
     api_num1 = "05-123-27133"
     well_name1 = "VILLAGE-11-16DU"
-    html_mock_fp1: Path = Path(__file__).parent.parent / r"_test_data/testpage_05-123-27133_html"
+    html_mock_fp1: Path = (
+        Path(__file__).parent.parent / r"_test_data/testpage_05-123-27133_html"
+    )
     html_mock1: str = None
 
     api_num2 = "05-001-07729"
     well_name2 = "CHAMPLIN #15-27"
-    html_mock_fp2: Path = Path(__file__).parent.parent / r"_test_data/testpage_05-001-07729_html"
+    html_mock_fp2: Path = (
+        Path(__file__).parent.parent / r"_test_data/testpage_05-001-07729_html"
+    )
     html_mock2: str = None
 
     @classmethod
     def setUpClass(cls):
-        drop_test_db(cls.connection)
-        cls.wrm = MongoDBWellRecordManager(cls.connection, TEST_DB_NAME, "well_records")
+        drop_test_collection()
         cls.scraper = ScraperWellDataCollector.from_config(COLORADO_CONFIG)
         # Note: API #05-123-27133 has 3 gaps (not counting shut-in periods);
         # and API #05-001-07729 has never produced. We should find 3 gaps.
@@ -81,18 +80,18 @@ class TestScrapeAndStore(unittest.TestCase):
             # Add well record to the WellGroup.
             cls.well_group.well_records.append(well_record)
             # Insert well record into the database.
-            cls.wrm.insert_well_record(well_record)
+            WRM.insert_well_record(well_record)
         return None
 
     @classmethod
     def tearDownClass(cls):
-        drop_test_db(cls.connection)
+        drop_test_collection()
 
     def test_well_record_count(self):
         self.assertEqual(2, len(self.well_group.well_records))
 
     def test_database(self):
-        self.assertEqual(2, self.wrm.well_records_collection.count_documents({}))
+        self.assertEqual(2, WRM.well_records_collection.count_documents({}))
 
     def test_find_gaps(self):
         ignore_si_gaps = self.well_group.find_gaps(category=NO_PROD_IGNORE_SHUTIN)

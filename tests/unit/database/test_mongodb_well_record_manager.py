@@ -1,22 +1,17 @@
 import unittest
 from datetime import date
 
-from pymongo import MongoClient
-
 from backend.well_records.well_record import WellRecord
 from backend.well_records.date_range import DateRange
 from backend.well_records.standard_categories import (
     NO_PROD_IGNORE_SHUTIN,
     NO_PROD_BUT_SHUTIN_COUNTS,
 )
+from backend.database.mongodb_well_record_manager import (
+    MongoDBWellRecordManager,
+    get_well_record_manager_for_environment,
+)
 from backend.database.mongodb_well_record_manager import MongoDBWellRecordManager
-
-
-TEST_DB_NAME = "testing_wrm"
-
-
-def get_connection():
-    return MongoClient("localhost", 27017)
 
 
 def get_example_well_record():
@@ -38,55 +33,44 @@ def get_example_well_record():
     return record
 
 
+# MongoDBWellRecordManager handles interactions with the database.
+WRM = get_well_record_manager_for_environment("TEST")
 EXAMPLE_RECORD = get_example_well_record()
 
 
-def drop_test_db(connection):
-    connection.drop_database(TEST_DB_NAME)
+def drop_test_collection():
+    WRM.database.drop_collection(WRM.well_records_collection_name)
 
 
 class TestMongoDBWellRecordManager_insert(unittest.TestCase):
 
     def setUp(self):
-        self.connection = get_connection()
-        drop_test_db(self.connection)
-        self.wrm = MongoDBWellRecordManager(
-            self.connection,
-            TEST_DB_NAME,
-            well_records_collection_name="well_records",
-        )
+        drop_test_collection()
         return None
 
     def tearDown(self):
-        drop_test_db(self.connection)
+        drop_test_collection()
         return None
 
     def test_insert_well_record_count(self):
-        self.wrm.insert_well_record(EXAMPLE_RECORD)
-        self.assertEqual(1, self.wrm.well_records_collection.count_documents({}))
+        WRM.insert_well_record(EXAMPLE_RECORD)
+        self.assertEqual(1, WRM.well_records_collection.count_documents({}))
 
 
 class TestMongoDBWellRecordManager_findSuccessful(unittest.TestCase):
 
-    connection = get_connection()
-    wrm = None
     example_record = EXAMPLE_RECORD
     recovered_record = None
 
     @classmethod
     def setUpClass(cls):
-        drop_test_db(cls.connection)
-        cls.wrm = MongoDBWellRecordManager(
-            cls.connection,
-            TEST_DB_NAME,
-            well_records_collection_name="well_records",
-        )
-        cls.wrm.insert_well_record(cls.example_record)
-        cls.recovered_record = cls.wrm.find_well_record(cls.example_record.api_num)
+        drop_test_collection()
+        WRM.insert_well_record(cls.example_record)
+        cls.recovered_record = WRM.find_well_record(cls.example_record.api_num)
 
     @classmethod
     def tearDownClass(cls) -> None:
-        drop_test_db(cls.connection)
+        drop_test_collection()
 
     def test_was_found(self):
         self.assertIsNotNone(self.recovered_record)
@@ -127,25 +111,19 @@ class TestMongoDBWellRecordManager_findSuccessful(unittest.TestCase):
 
 class TestMongoDBWellRecordManager_findUnsuccessful(unittest.TestCase):
 
-    connection = get_connection()
-    wrm = None
+    wrm: MongoDBWellRecordManager = get_well_record_manager_for_environment("TEST")
     example_record = EXAMPLE_RECORD
     recovered_record = None
 
     @classmethod
     def setUpClass(cls):
-        drop_test_db(cls.connection)
-        cls.wrm = MongoDBWellRecordManager(
-            cls.connection,
-            TEST_DB_NAME,
-            well_records_collection_name="well_records",
-        )
-        cls.wrm.insert_well_record(cls.example_record)
-        cls.recovered_record = cls.wrm.find_well_record("00-123-45678")
+        drop_test_collection()
+        WRM.insert_well_record(cls.example_record)
+        cls.recovered_record = WRM.find_well_record("00-123-45678")
 
     @classmethod
     def tearDownClass(cls) -> None:
-        drop_test_db(cls.connection)
+        drop_test_collection()
 
     def test_was_not_found(self):
         self.assertIsNone(self.recovered_record)
@@ -153,30 +131,24 @@ class TestMongoDBWellRecordManager_findUnsuccessful(unittest.TestCase):
 
 class TestMongoDBWellRecordManager_update(unittest.TestCase):
 
-    connection = get_connection()
-    wrm = None
+    wrm: MongoDBWellRecordManager = get_well_record_manager_for_environment("TEST")
     example_record = EXAMPLE_RECORD
     updated_example_record = None
     recovered_record = None
 
     @classmethod
     def setUpClass(cls):
-        drop_test_db(cls.connection)
-        cls.wrm = MongoDBWellRecordManager(
-            cls.connection,
-            TEST_DB_NAME,
-            well_records_collection_name="well_records",
-        )
-        cls.wrm.insert_well_record(cls.example_record)
+        drop_test_collection()
+        WRM.insert_well_record(cls.example_record)
         updated_example_record = get_example_well_record()
         # Get rid of one of the date ranges for NO_PROD_IGNORE_SHUTIN.
         updated_example_record.date_ranges[NO_PROD_IGNORE_SHUTIN].date_ranges.pop()
-        cls.wrm.update_well_record(updated_example_record)
-        cls.recovered_record = cls.wrm.find_well_record(cls.example_record.api_num)
+        WRM.update_well_record(updated_example_record)
+        cls.recovered_record = WRM.find_well_record(cls.example_record.api_num)
 
     @classmethod
     def tearDownClass(cls) -> None:
-        drop_test_db(cls.connection)
+        drop_test_collection()
 
     def test_was_found(self):
         self.assertIsNotNone(self.recovered_record)
@@ -197,7 +169,6 @@ class TestMongoDBWellRecordManager_update(unittest.TestCase):
             )
 
     def test_date_ranges_match(self):
-
         # NO_PROD_BUT_SHUT_IN_COUNTS should be the same.
         for category in (NO_PROD_BUT_SHUTIN_COUNTS,):
             example_drs = self.example_record.date_ranges_by_category(category)
@@ -230,8 +201,7 @@ class TestMongoDBWellRecordManager_update(unittest.TestCase):
 
 class TestMongoDBWellRecordManager_delete(unittest.TestCase):
 
-    connection = get_connection()
-    wrm = None
+    wrm: MongoDBWellRecordManager = get_well_record_manager_for_environment("TEST")
     example_record = EXAMPLE_RECORD
     updated_example_record = None
     original_recovered_record = None
@@ -239,24 +209,19 @@ class TestMongoDBWellRecordManager_delete(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        drop_test_db(cls.connection)
-        cls.wrm = MongoDBWellRecordManager(
-            cls.connection,
-            TEST_DB_NAME,
-            well_records_collection_name="well_records",
-        )
-        cls.wrm.insert_well_record(cls.example_record)
-        cls.original_recovered_record = cls.wrm.find_well_record(
+        drop_test_collection()
+        WRM.insert_well_record(cls.example_record)
+        cls.original_recovered_record = WRM.find_well_record(
             cls.example_record.api_num
         )
-        cls.wrm.delete_well_record(cls.example_record.api_num)
-        cls.final_recovered_record = cls.wrm.find_well_record(
+        WRM.delete_well_record(cls.example_record.api_num)
+        cls.final_recovered_record = WRM.find_well_record(
             cls.example_record.api_num
         )
 
     @classmethod
     def tearDownClass(cls) -> None:
-        drop_test_db(cls.connection)
+        drop_test_collection()
 
     def test_original_was_found(self):
         self.assertIsNotNone(self.original_recovered_record)
