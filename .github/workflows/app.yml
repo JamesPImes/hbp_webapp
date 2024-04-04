@@ -38,7 +38,8 @@ jobs:
       run: |
         touch .env
         echo MONGO_CONNECTION_STRING_TEST=${{ secrets.MONGO_CONNECTION_STRING_TEST }} >> .env
-        cat .env
+        echo DATABASE_NAME_TEST=hbp_webapp_test >> .env
+        echo WELL_RECORDS_COLLECTION_TEST=well_records_test >> .env
     - name: Test with pytest
       run: |
         pytest
