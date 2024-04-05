@@ -2,7 +2,7 @@ import logging
 from datetime import timedelta, date
 
 import dotenv
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 
 from backend.database.mongodb_well_record_manager import (
     get_well_record_manager_for_environment,
@@ -17,6 +17,7 @@ from backend.data_collector.well_data_scraper import ScraperWellDataCollector
 from backend.data_collector.state_configs import STATE_CODE_SCRAPER_CONFIGS
 from backend.database.well_record_manager import WellRecordManager
 from backend.database.mongodb_well_record_manager import MongoDBWellRecordManager
+from backend.summarizer.summarizer import summarize_well_group, summarize_well_record
 from backend.utils.validate_api_num import validate_api_num
 from backend.utils.state_codes import STATE_CODES
 
@@ -164,7 +165,9 @@ def create_app(config: Config, environment_short_name: str = None) -> Flask:
 
     def get_well_summary(api_num) -> dict:
         well_record = get_well_record(api_num)
-        return well_record.summary_dict(category_clean_names=CLEAN_CATEGORY_NAMES)
+        return summarize_well_record(
+            well_record, category_clean_names=CLEAN_CATEGORY_NAMES
+        )
 
     @app.route("/well_record/<api_num>", methods=["GET"])
     def get_well_summary_as_json(api_num):
@@ -187,7 +190,8 @@ def create_app(config: Config, environment_short_name: str = None) -> Flask:
         for category in wg.shared_categories():
             # This stores the researched category and resulting gaps to `wg.researched_gaps`.
             wg.find_gaps(category)
-        summary = wg.summarize(
+        summary = summarize_well_group(
+            wg,
             category_clean_names=CLEAN_CATEGORY_NAMES,
             between="::",
             show_days=True,
