@@ -146,21 +146,18 @@ class WellGroup:
             "Earliest Reported Date": self.find_first_date(),
             "Latest Reported Date": self.find_last_date(),
             "Researched Gaps": {},
-            "Researched Gaps<MAX DAYS>": {},
             "Well Records": [],
         }
         for category, gaps in self.researched_gaps.items():
             cat_name = category_clean_names.get(category, category)
-            gaps_summary = gaps.summarize_date_ranges(
+            gaps_summary = gaps.summarize(
                 between=between,
                 show_days=show_days,
                 show_months=show_months,
             )
-            _, longest_gap = gaps.get_shortest_and_longest_durations()
             summary["Researched Gaps"][cat_name] = gaps_summary
-            summary["Researched Gaps<MAX DAYS>"][cat_name] = longest_gap
         for wr in self.well_records:
-            wrsummary = wr.summary_dict(
+            wrsummary = wr.summarize(
                 category_clean_names=category_clean_names,
                 between=between,
                 show_days=show_days,
