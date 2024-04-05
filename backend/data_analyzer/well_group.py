@@ -7,6 +7,7 @@ from backend.well_records.date_range import DateRange, DateRangeGroup
 class WellGroup:
     def __init__(self) -> None:
         self.well_records: list[WellRecord] = []
+        self.researched_gaps: dict[str, DateRangeGroup] = {}
 
     def add_well_record(self, well_record: WellRecord) -> None:
         """Add a well record to this well group."""
@@ -38,7 +39,23 @@ class WellGroup:
                 last = wr.last_date
         return last
 
-    def find_gaps(self, category) -> DateRangeGroup:
+    def shared_categories(self) -> list[str]:
+        """
+        Get a list of category names that are shared by all well records
+        in this group.
+        :return:
+        """
+        categories = set()
+        if len(self.well_records) == 0:
+            return []
+        for i, wr in enumerate(self.well_records):
+            if i == 0:
+                categories = set(self.well_records[0].registered_categories())
+                continue
+            categories.intersection_update(wr.registered_categories())
+        return sorted(categories)
+
+    def find_gaps(self, category: str) -> DateRangeGroup:
         """
         Find gaps of the specified ``category`` across all well records.
         This takes a "swiss cheese" approach -- i.e., if one well has a
@@ -96,7 +113,61 @@ class WellGroup:
                 # Once we've removed all date ranges, there can never be future gaps.
                 break
             gaps = gaps.find_all_overlaps(normalized_dr_group)
+        self.researched_gaps[category] = gaps
         return gaps
+
+    def summarize(
+        self,
+        category_clean_names: dict[str, str] = None,
+        between="::",
+        show_days: bool = False,
+        show_months: bool = False,
+    ) -> dict:
+        """
+        Summarize this well group's data fields into a dict.
+
+        :param category_clean_names: (Optional) Pass a dict whose keys
+         are the 'official' categories of date ranges registered to the
+         well records; and whose values are the 'clean' version that
+         should appear in the output dict instead (e.g.,
+         ``{'NO_PROD_IGNORE_SHUTIN'``: ``'No production (ignore shutin)'}``.
+        :param between: The string to go between the start/end date of
+         each date range. (Default: ``'::'``).
+        :param show_days: Whether to include the duration of each date
+         range in days. (Default: ``False``)
+        :param show_months: Whether to include the duration of each date
+         range in calendar months. (Default: ``False``)
+        """
+        if category_clean_names is None:
+            category_clean_names = {}
+        summary = {
+            "Well Count": len(self.well_records),
+            "API Numbers": [wr.api_num for wr in self.well_records],
+            "Earliest Reported Date": self.find_first_date(),
+            "Latest Reported Date": self.find_last_date(),
+            "Researched Gaps": {},
+            "Researched Gaps<MAX DAYS>": {},
+            "Well Records": [],
+        }
+        for category, gaps in self.researched_gaps.items():
+            cat_name = category_clean_names.get(category, category)
+            gaps_summary = gaps.summarize_date_ranges(
+                between=between,
+                show_days=show_days,
+                show_months=show_months,
+            )
+            _, longest_gap = gaps.get_shortest_and_longest_durations()
+            summary["Researched Gaps"][cat_name] = gaps_summary
+            summary["Researched Gaps<MAX DAYS>"][cat_name] = longest_gap
+        for wr in self.well_records:
+            wrsummary = wr.summary_dict(
+                category_clean_names=category_clean_names,
+                between=between,
+                show_days=show_days,
+                show_months=show_months,
+            )
+            summary["Well Records"].append(wrsummary)
+        return summary
 
 
 __all__ = [
