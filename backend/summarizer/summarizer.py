@@ -105,11 +105,11 @@ def summarize_well_record(
     if wr.well_name is not None:
         data_fields["Well Name"] = wr.well_name
     if wr.first_date is not None:
-        data_fields["First Date of Production"] = f"{wr.first_date:%m/%d/%Y}"
+        data_fields["First Date of Production"] = f"{wr.first_date:%Y-%m-%d}"
     if wr.last_date is not None:
-        data_fields["Last Date of Production"] = f"{wr.last_date:%m/%d/%Y}"
+        data_fields["Last Date of Production"] = f"{wr.last_date:%Y-%m-%d}"
     if wr.record_access_date is not None:
-        data_fields["Records Access Date"] = f"{wr.record_access_date:%m/%d/%Y}"
+        data_fields["Records Access Date"] = f"{wr.record_access_date:%Y-%m-%d}"
     for category in wr.registered_categories():
         drgroup = wr.date_ranges_by_category(category)
         drgroup_summary = summarize_date_range_group(
@@ -148,8 +148,8 @@ def summarize_well_group(
     summary = {
         "Well Count": len(wg.well_records),
         "API Numbers": [wr.api_num for wr in wg.well_records],
-        "Earliest Reported Date": wg.find_first_date(),
-        "Latest Reported Date": wg.find_last_date(),
+        "Earliest Reported Date": f"{wg.find_first_date():%Y-%m-%d}",
+        "Latest Reported Date": f"{wg.find_last_date():%Y-%m-%d}",
         "Researched Gaps": {},
         "Well Records": [],
     }
