@@ -171,25 +171,35 @@ def create_app(config: Config, environment_short_name: str = None) -> Flask:
         summary = get_well_summary(api_num)
         return jsonify(summary)
 
-    @app.route("/well_group/<api_nums>", methods=["GET"])
-    def get_well_group(api_nums):
-        # TODO: Rework the output of this method to jsonify.
-
-        split_api_nums = api_nums.split("&")
-
+    def get_well_group_summary(api_nums: list[str]) -> dict:
+        """
+        Collect well records, construct a well group, look for gaps,
+        and summarize.
+        :param api_nums: A list of API numbers of the wells to include
+         in this group.
+        :return: A summary dict for the well group (can be converted to
+         json).
+        """
         wg = WellGroup()
-        for num in split_api_nums:
+        for num in api_nums:
             well_record = try_database_then_scraper(num, wrm)
             wg.add_well_record(well_record)
+        for category in wg.shared_categories():
+            # This stores the researched category and resulting gaps to `wg.researched_gaps`.
+            wg.find_gaps(category)
+        summary = wg.summarize(
+            category_clean_names=CLEAN_CATEGORY_NAMES,
+            between="::",
+            show_days=True,
+            show_months=True,
+        )
+        return summary
 
-        gaps = wg.find_gaps(NO_PROD_IGNORE_SHUTIN)
-        output_str = ""
-        for gap in gaps:
-            output_str += "<br>" + str(gap)
-        for wr in wg.well_records:
-            summary = wr.summary_dict(category_clean_names=CLEAN_CATEGORY_NAMES)
-            output_str += "<br><br><br>" + wr.stringify_summary_dict(summary, "<br>")
-        return output_str
+    @app.route("/well_group/<api_nums_separated_by_ampersand>", methods=["GET"])
+    def get_well_group(api_nums_separated_by_ampersand):
+        api_nums = api_nums_separated_by_ampersand.split("&")
+        summary = get_well_group_summary(api_nums)
+        return jsonify(summary)
 
     def get_well_record(api_num):
         return try_database_then_scraper(
