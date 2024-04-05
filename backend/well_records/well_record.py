@@ -125,7 +125,13 @@ class WellRecord:
                 wr.register_date_range(dr, category)
         return wr
 
-    def summary_dict(self, category_clean_names: dict[str, str] = None) -> dict:
+    def summary_dict(
+        self,
+        category_clean_names: dict[str, str] = None,
+        between="::",
+        show_days: bool = False,
+        show_months: bool = False,
+    ) -> dict:
         """
         Summarize this well record's data fields into a dict.
         :param category_clean_names: (Optional) Pass a dict whose keys
@@ -133,19 +139,27 @@ class WellRecord:
          well record; and whose values are the 'clean' version that
          should appear in the output dict instead (e.g.,
          ``{'NO_PROD_IGNORE_SHUTIN'``: ``'No production (ignore shutin)'}``.
+        :param between: The string to go between the start/end date of
+         each date range. (Default: ``'::'``).
+        :param show_days: Whether to include the duration of each date
+         range in days. (Default: ``False``)
+        :param show_months: Whether to include the duration of each date
+         range in calendar months. (Default: ``False``)
         :return: A dict summarizing the fields in this well record.
         """
         if category_clean_names is None:
             category_clean_names = {}
-        data_fields = {}
-        data_fields["API Number"] = self.api_num
-        data_fields["Well Name"] = "Unknown"
+        data_fields = {
+            "API Number": self.api_num,
+            "Well Name": "Unknown",
+            "First Date of Production": "No production reported",
+            "Last Date of Production": "No production reported",
+            "Records Access Date": "Unknown",
+            "Date Ranges": {},
+            "Date Ranges<MAX DAYS>": {},
+        }
         if self.well_name is not None:
             data_fields["Well Name"] = self.well_name
-
-        data_fields["First Date of Production"] = "No production reported"
-        data_fields["Last Date of Production"] = "No production reported"
-        data_fields["Records Access Date"] = "Unknown"
         if self.first_date is not None:
             data_fields["First Date of Production"] = f"{self.first_date:%m/%d/%Y}"
         if self.last_date is not None:
@@ -153,45 +167,15 @@ class WellRecord:
         if self.record_access_date is not None:
             data_fields["Records Access Date"] = f"{self.record_access_date:%m/%d/%Y}"
         for category in self.registered_categories():
+            drgroup = self.date_ranges_by_category(category)
+            _, longest_duration = drgroup.get_shortest_and_longest_durations()
+            drgroup_summary = drgroup.summarize_date_ranges(
+                between=between, show_days=show_days, show_months=show_months
+            )
             cat_name = category_clean_names.get(category, category)
-            date_range_strings = []
-            longest_duration = 0
-            for dr in self.date_ranges_by_category(category):
-                date_range_strings.append(
-                    f"{str(dr)} "
-                    f"({dr.duration_in_days()} days; "
-                    f"{dr.duration_in_months()} calendar months)"
-                )
-                longest_duration = max(longest_duration, dr.duration_in_days())
-
-            data_fields[f"{cat_name}<MAX_DAYS>"] = longest_duration
-            data_fields[cat_name] = date_range_strings
+            data_fields["Date Ranges"][cat_name] = drgroup_summary
+            data_fields[f"Date Ranges<MAX DAYS>"][cat_name] = longest_duration
         return data_fields
-
-    @staticmethod
-    def stringify_summary_dict(summary: dict, joiner="\n") -> str:
-        """
-        Convert a summary dict into a string.
-        :param summary: The dict containing the fields/values to be
-         summarized.
-        :param joiner: The character(s) to put between each data field
-         (defaults to ``'\n'`` -- i.e., each data field begins on a new
-         line).
-        :return: The summary string.
-        """
-        just = len(max(summary.keys(), key=lambda x: len(x)))
-        lines = []
-        for field, value in summary.items():
-            if isinstance(value, list):
-                for i, element in enumerate(value):
-                    if i == 0:
-                        left_part = field
-                    else:
-                        left_part = ">>"
-                    lines.append(f"{left_part.rjust(just, ' ')}: {element}")
-            else:
-                lines.append(f"{str(field).rjust(just, ' ')}: {value}")
-        return joiner.join(lines)
 
     def __str__(self):
         well_name = self.well_name
