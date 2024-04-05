@@ -1,4 +1,3 @@
-
 STATE_CODES = {
     "01": "Alabama",
     "02": "Arizona",
@@ -79,7 +78,7 @@ def validate_api_num(api_num: str) -> bool:
     """
     if not isinstance(api_num, str):
         return False
-    components = api_num.split('-')
+    components = api_num.split("-")
     if len(components) not in (3, 5):
         return False
     if components[0] not in STATE_CODES.keys():
@@ -92,6 +91,6 @@ def validate_api_num(api_num: str) -> bool:
 
 
 __all__ = [
-    'STATE_CODES',
-    'validate_api_num',
+    "STATE_CODES",
+    "validate_api_num",
 ]
