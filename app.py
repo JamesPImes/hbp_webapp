@@ -162,10 +162,13 @@ def create_app(config: Config, environment_short_name: str = None) -> Flask:
          </form>
          """
 
+    def get_well_summary(api_num) -> dict:
+        well_record = get_well_record(api_num)
+        return well_record.summary_dict(category_clean_names=CLEAN_CATEGORY_NAMES)
+
     @app.route("/well_record/<api_num>", methods=["GET"])
     def get_well_summary_as_json(api_num):
-        well_record = get_well_record(api_num)
-        summary = well_record.summary_dict(category_clean_names=CLEAN_CATEGORY_NAMES)
+        summary = get_well_summary(api_num)
         return jsonify(summary)
 
     @app.route("/well_group/<api_nums>", methods=["GET"])
