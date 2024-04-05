@@ -13,7 +13,7 @@ def _url_prep_function(**kw):
     """
     api_num = kw["api_num"]
     components = api_num.split("-")
-    return components[1:2]
+    return components[1:3]
 
 
 def _get_well_name_function(**kw) -> str | None:
