@@ -8,6 +8,7 @@ dotenv.load_dotenv()
 
 class Config:
     ENVIRONMENT_SHORT_NAME = "NOT_DEFINED"
+    MAX_ACCEPTABLE_RECORD_AGE_IN_DAYS = 27
 
     def __init__(self):
         """
