@@ -116,56 +116,6 @@ class WellGroup:
         self.researched_gaps[category] = gaps
         return gaps
 
-    def summarize(
-        self,
-        category_clean_names: dict[str, str] = None,
-        between="::",
-        show_days: bool = False,
-        show_months: bool = False,
-    ) -> dict:
-        """
-        Summarize this well group's data fields into a dict.
-
-        :param category_clean_names: (Optional) Pass a dict whose keys
-         are the 'official' categories of date ranges registered to the
-         well records; and whose values are the 'clean' version that
-         should appear in the output dict instead (e.g.,
-         ``{'NO_PROD_IGNORE_SHUTIN'``: ``'No production (ignore shutin)'}``.
-        :param between: The string to go between the start/end date of
-         each date range. (Default: ``'::'``).
-        :param show_days: Whether to include the duration of each date
-         range in days. (Default: ``False``)
-        :param show_months: Whether to include the duration of each date
-         range in calendar months. (Default: ``False``)
-        """
-        if category_clean_names is None:
-            category_clean_names = {}
-        summary = {
-            "Well Count": len(self.well_records),
-            "API Numbers": [wr.api_num for wr in self.well_records],
-            "Earliest Reported Date": self.find_first_date(),
-            "Latest Reported Date": self.find_last_date(),
-            "Researched Gaps": {},
-            "Well Records": [],
-        }
-        for category, gaps in self.researched_gaps.items():
-            cat_name = category_clean_names.get(category, category)
-            gaps_summary = gaps.summarize(
-                between=between,
-                show_days=show_days,
-                show_months=show_months,
-            )
-            summary["Researched Gaps"][cat_name] = gaps_summary
-        for wr in self.well_records:
-            wrsummary = wr.summarize(
-                category_clean_names=category_clean_names,
-                between=between,
-                show_days=show_days,
-                show_months=show_months,
-            )
-            summary["Well Records"].append(wrsummary)
-        return summary
-
 
 __all__ = [
     "WellGroup",

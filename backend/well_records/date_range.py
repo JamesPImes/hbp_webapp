@@ -157,29 +157,6 @@ class DateRange:
             dr = DateRange(other.start_date, self.end_date)
         return dr
 
-    def summarize(
-        self, between="::", show_days: bool = False, show_months: bool = False
-    ) -> str:
-        """
-        Summarize this date range as a string.
-        :param between: The string to go between the start/end date of
-         each date range. (Default: ``'::'``).
-        :param show_days: Whether to include the duration of each date
-         range in days. (Default: ``False``)
-        :param show_months: Whether to include the duration of each date
-         range in calendar months. (Default: ``False``)
-        :return:
-        """
-        summary = f"{self.start_date:%Y-%m-%d}{between}{self.end_date:%Y-%m-%d}"
-        additional_info = []
-        if show_days:
-            additional_info.append(f"{self.duration_in_days()} days")
-        if show_months:
-            additional_info.append(f"{self.duration_in_months()} calendar months")
-        if additional_info:
-            summary += f" ({'; '.join(additional_info)})"
-        return summary
-
     def __str__(self):
         return f"{self.start_date:%Y-%m-%d}::{self.end_date:%Y-%m-%d}"
 
@@ -283,35 +260,6 @@ class DateRangeGroup:
             shortest_duration = min(shortest_duration, dr.duration_in_days())
             longest_duration = max(longest_duration, dr.duration_in_days())
         return shortest_duration, longest_duration
-
-    def summarize(
-        self, between="::", show_days: bool = False, show_months: bool = False
-    ) -> dict:
-        """
-        Summarize this group of date ranges into a dict with keys
-        ``'Longest (days)'`` (the longest duration found in any date
-        range) and ``'Date Ranges'`` (a list of summary strings, each
-        representing a date range, the format of which is configured
-        with the parameters of this method). (The parameters here are
-        the same as those in the summary method for the ``DateRange``
-        class.)
-
-        :param between: The string to go between the start/end date of
-         each date range. (Default: ``'::'``).
-        :param show_days: Whether to include the duration of each date
-         range in days. (Default: ``False``)
-        :param show_months: Whether to include the duration of each date
-         range in calendar months. (Default: ``False``)
-        :return: A summary dict as described above.
-        """
-        _, longest = self.get_shortest_and_longest_durations()
-        summary = {
-            "Longest (days)": longest,
-            "Date Ranges": [
-                dr.summarize(between, show_days, show_months) for dr in self.date_ranges
-            ],
-        }
-        return summary
 
     def __str__(self):
         return str(self.date_ranges)

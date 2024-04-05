@@ -125,54 +125,6 @@ class WellRecord:
                 wr.register_date_range(dr, category)
         return wr
 
-    def summarize(
-        self,
-        category_clean_names: dict[str, str] = None,
-        between="::",
-        show_days: bool = False,
-        show_months: bool = False,
-    ) -> dict:
-        """
-        Summarize this well record's data fields into a dict.
-        :param category_clean_names: (Optional) Pass a dict whose keys
-         are the 'official' categories of date ranges registered to this
-         well record; and whose values are the 'clean' version that
-         should appear in the output dict instead (e.g.,
-         ``{'NO_PROD_IGNORE_SHUTIN'``: ``'No production (ignore shutin)'}``.
-        :param between: The string to go between the start/end date of
-         each date range. (Default: ``'::'``).
-        :param show_days: Whether to include the duration of each date
-         range in days. (Default: ``False``)
-        :param show_months: Whether to include the duration of each date
-         range in calendar months. (Default: ``False``)
-        :return: A dict summarizing the fields in this well record.
-        """
-        if category_clean_names is None:
-            category_clean_names = {}
-        data_fields = {
-            "API Number": self.api_num,
-            "Well Name": "Unknown",
-            "First Date of Production": "No production reported",
-            "Last Date of Production": "No production reported",
-            "Records Access Date": "Unknown",
-            "Date Ranges": {},
-        }
-        if self.well_name is not None:
-            data_fields["Well Name"] = self.well_name
-        if self.first_date is not None:
-            data_fields["First Date of Production"] = f"{self.first_date:%m/%d/%Y}"
-        if self.last_date is not None:
-            data_fields["Last Date of Production"] = f"{self.last_date:%m/%d/%Y}"
-        if self.record_access_date is not None:
-            data_fields["Records Access Date"] = f"{self.record_access_date:%m/%d/%Y}"
-        for category in self.registered_categories():
-            drgroup = self.date_ranges_by_category(category)
-            drgroup_summary = drgroup.summarize(
-                between=between, show_days=show_days, show_months=show_months
-            )
-            cat_name = category_clean_names.get(category, category)
-            data_fields["Date Ranges"][cat_name] = drgroup_summary
-        return data_fields
 
     def __str__(self):
         well_name = self.well_name
