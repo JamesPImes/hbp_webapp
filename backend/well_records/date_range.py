@@ -281,17 +281,20 @@ class DateRangeGroup:
         longest_duration = 0
         for dr in self.date_ranges:
             shortest_duration = min(shortest_duration, dr.duration_in_days())
-            longest_duration = max(shortest_duration, dr.duration_in_days())
+            longest_duration = max(longest_duration, dr.duration_in_days())
         return shortest_duration, longest_duration
 
-    def summarize_date_ranges(
+    def summarize(
         self, between="::", show_days: bool = False, show_months: bool = False
-    ) -> list:
+    ) -> dict:
         """
-        Summarize this group of date ranges into a list of strings, each
+        Summarize this group of date ranges into a dict with keys
+        ``'Longest (days)'`` (the longest duration found in any date
+        range) and ``'Date Ranges'`` (a list of summary strings, each
         representing a date range, the format of which is configured
-        with the parameters of this method. (The parameters are the same
-        as those in the summary method for the ``DateRange`` class.)
+        with the parameters of this method). (The parameters here are
+        the same as those in the summary method for the ``DateRange``
+        class.)
 
         :param between: The string to go between the start/end date of
          each date range. (Default: ``'::'``).
@@ -299,10 +302,16 @@ class DateRangeGroup:
          range in days. (Default: ``False``)
         :param show_months: Whether to include the duration of each date
          range in calendar months. (Default: ``False``)
-        :return: A list of summary strings
+        :return: A summary dict as described above.
         """
-
-        return [dr.summarize(between, show_days, show_months) for dr in self.date_ranges]
+        _, longest = self.get_shortest_and_longest_durations()
+        summary = {
+            "Longest (days)": longest,
+            "Date Ranges": [
+                dr.summarize(between, show_days, show_months) for dr in self.date_ranges
+            ],
+        }
+        return summary
 
     def __str__(self):
         return str(self.date_ranges)
