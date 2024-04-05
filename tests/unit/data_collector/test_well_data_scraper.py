@@ -2,13 +2,13 @@ import unittest
 from datetime import date
 from pathlib import Path
 
-from backend.well_records.well_record import WellRecord
-from backend.data_collector.well_data_scraper import ScraperWellDataCollector
-from backend.data_collector.state_configs.colorado import COLORADO_CONFIG
-from backend.well_records.standard_categories import (
+from backend.well_records import (
+    WellRecord,
     NO_PROD_IGNORE_SHUTIN,
     NO_PROD_BUT_SHUTIN_COUNTS,
 )
+from backend.data_collector import ScraperWellDataCollector
+from backend.data_collector.state_configs import COLORADO_CONFIG
 
 
 class TestScraperWellDataCollector(unittest.TestCase):

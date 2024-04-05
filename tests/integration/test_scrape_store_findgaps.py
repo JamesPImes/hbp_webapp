@@ -12,11 +12,11 @@ from pathlib import Path
 
 from mongomock import MongoClient
 
-from backend.data_analyzer.well_group import WellGroup
-from backend.data_collector.well_data_scraper import ScraperWellDataCollector
-from backend.data_collector.state_configs.colorado import COLORADO_CONFIG
-from backend.well_records.standard_categories import NO_PROD_IGNORE_SHUTIN
-from backend.database.mongodb_well_record_manager import MongoDBWellRecordManager
+from backend.data_analyzer import WellGroup
+from backend.data_collector import ScraperWellDataCollector
+from backend.data_collector.state_configs import COLORADO_CONFIG
+from backend.well_records import NO_PROD_IGNORE_SHUTIN
+from backend.database import MongoDBWellRecordManager
 
 
 # Use a mongomock.MongoClient instead of (real) pymongo.MongoClient.

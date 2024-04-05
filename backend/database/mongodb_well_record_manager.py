@@ -5,7 +5,7 @@ from datetime import datetime
 from pymongo import MongoClient
 import dotenv
 
-from backend.well_records.well_record import WellRecord
+from backend.well_records import WellRecord
 from .well_record_manager import WellRecordManager
 from .mongodb_manager import MongoDBManager
 from .mongodb_loader import get_mongo_client_for_environment

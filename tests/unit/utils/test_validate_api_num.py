@@ -1,6 +1,6 @@
 import unittest
 
-from backend.utils.validate_api_num import validate_api_num
+from backend.utils import validate_api_num
 
 
 class TestValidateApiNum(unittest.TestCase):

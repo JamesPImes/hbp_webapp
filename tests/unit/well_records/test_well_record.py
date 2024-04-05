@@ -1,9 +1,9 @@
 import unittest
 from datetime import date, datetime
 
-from backend.well_records.well_record import WellRecord
-from backend.well_records.date_range import DateRange
-from backend.well_records.standard_categories import (
+from backend.well_records import (
+    WellRecord,
+    DateRange,
     NO_PROD_IGNORE_SHUTIN,
     NO_PROD_BUT_SHUTIN_COUNTS,
 )

@@ -1,6 +1,6 @@
 from abc import ABC
 
-from backend.well_records.well_record import WellRecord
+from backend.well_records import WellRecord
 
 
 class WellRecordManager(ABC):

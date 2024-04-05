@@ -3,13 +3,13 @@ from datetime import date
 
 from mongomock import MongoClient
 
-from backend.well_records.well_record import WellRecord
-from backend.well_records.date_range import DateRange
-from backend.well_records.standard_categories import (
+from backend.well_records import (
+    WellRecord,
+    DateRange,
     NO_PROD_IGNORE_SHUTIN,
     NO_PROD_BUT_SHUTIN_COUNTS,
 )
-from backend.database.mongodb_well_record_manager import MongoDBWellRecordManager
+from backend.database import MongoDBWellRecordManager
 
 
 def get_example_well_record():

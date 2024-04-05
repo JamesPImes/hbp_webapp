@@ -1,7 +1,6 @@
 from datetime import date, timedelta
 
-from backend.well_records.well_record import WellRecord
-from backend.well_records.date_range import DateRange, DateRangeGroup
+from backend.well_records import WellRecord, DateRange, DateRangeGroup
 
 
 class WellGroup:

@@ -30,9 +30,10 @@ from typing import Callable
 import pandas as pd
 from production_analyzer import ProductionAnalyzer, DataLoader, HTMLLoader
 
-from ..well_records.well_record import WellRecord
-from ..well_records.date_range import DateRange, DateRangeGroup
-from ..well_records.standard_categories import (
+from backend.well_records import (
+    WellRecord,
+    DateRange,
+    DateRangeGroup,
     NO_PROD_IGNORE_SHUTIN,
     NO_PROD_BUT_SHUTIN_COUNTS,
 )
