@@ -125,7 +125,6 @@ class WellRecord:
                 wr.register_date_range(dr, category)
         return wr
 
-
     def __str__(self):
         well_name = self.well_name
         if well_name is None:
