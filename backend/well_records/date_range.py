@@ -157,6 +157,29 @@ class DateRange:
             dr = DateRange(other.start_date, self.end_date)
         return dr
 
+    def summarize(
+        self, between="::", show_days: bool = False, show_months: bool = False
+    ) -> str:
+        """
+        Summarize this date range as a string.
+        :param between: The string to go between the start/end date of
+         each date range. (Default: ``'::'``).
+        :param show_days: Whether to include the duration of each date
+         range in days. (Default: ``False``)
+        :param show_months: Whether to include the duration of each date
+         range in calendar months. (Default: ``False``)
+        :return:
+        """
+        summary = f"{self.start_date:%Y-%m-%d}{between}{self.end_date:%Y-%m-%d}"
+        additional_info = []
+        if show_days:
+            additional_info.append(f"{self.duration_in_days()} days")
+        if show_months:
+            additional_info.append(f"{self.duration_in_months()} calendar months")
+        if additional_info:
+            summary += f" ({'; '.join(additional_info)})"
+        return summary
+
     def __str__(self):
         return f"{self.start_date:%Y-%m-%d}::{self.end_date:%Y-%m-%d}"
 
@@ -248,6 +271,38 @@ class DateRangeGroup:
             if dr.duration_in_days() >= days:
                 output_group.date_ranges.append(dr)
         return output_group
+
+    def get_shortest_and_longest_durations(self) -> (int, int):
+        """
+        Get the shortest and longest durations (in days) found in this
+        group of date ranges, returned as a 2-tuple of ints.
+        """
+        shortest_duration = 0
+        longest_duration = 0
+        for dr in self.date_ranges:
+            shortest_duration = min(shortest_duration, dr.duration_in_days())
+            longest_duration = max(shortest_duration, dr.duration_in_days())
+        return shortest_duration, longest_duration
+
+    def summarize_date_ranges(
+        self, between="::", show_days: bool = False, show_months: bool = False
+    ) -> list:
+        """
+        Summarize this group of date ranges into a list of strings, each
+        representing a date range, the format of which is configured
+        with the parameters of this method. (The parameters are the same
+        as those in the summary method for the ``DateRange`` class.)
+
+        :param between: The string to go between the start/end date of
+         each date range. (Default: ``'::'``).
+        :param show_days: Whether to include the duration of each date
+         range in days. (Default: ``False``)
+        :param show_months: Whether to include the duration of each date
+         range in calendar months. (Default: ``False``)
+        :return: A list of summary strings
+        """
+
+        return [dr.summarize(between, show_days, show_months) for dr in self.date_ranges]
 
     def __str__(self):
         return str(self.date_ranges)
