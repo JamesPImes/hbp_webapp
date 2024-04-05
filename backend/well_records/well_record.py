@@ -125,7 +125,7 @@ class WellRecord:
                 wr.register_date_range(dr, category)
         return wr
 
-    def summary_dict(
+    def summarize(
         self,
         category_clean_names: dict[str, str] = None,
         between="::",
@@ -156,7 +156,6 @@ class WellRecord:
             "Last Date of Production": "No production reported",
             "Records Access Date": "Unknown",
             "Date Ranges": {},
-            "Date Ranges<MAX DAYS>": {},
         }
         if self.well_name is not None:
             data_fields["Well Name"] = self.well_name
@@ -168,13 +167,11 @@ class WellRecord:
             data_fields["Records Access Date"] = f"{self.record_access_date:%m/%d/%Y}"
         for category in self.registered_categories():
             drgroup = self.date_ranges_by_category(category)
-            _, longest_duration = drgroup.get_shortest_and_longest_durations()
-            drgroup_summary = drgroup.summarize_date_ranges(
+            drgroup_summary = drgroup.summarize(
                 between=between, show_days=show_days, show_months=show_months
             )
             cat_name = category_clean_names.get(category, category)
             data_fields["Date Ranges"][cat_name] = drgroup_summary
-            data_fields[f"Date Ranges<MAX DAYS>"][cat_name] = longest_duration
         return data_fields
 
     def __str__(self):
