@@ -157,12 +157,14 @@ def create_app(config: Config, environment_short_name: str = None) -> Flask:
 
     @app.route("/")
     def main():
-        return """
-         <form action="/collect_wells" method="POST">
-             <input name="api_nums">
-             <input type="submit" value="Submit!">
-         </form>
-         """
+        return render_template("api_entry_form.html")
+
+    @app.route("/get_report", methods=["POST"])
+    def generate_well_group_report_from_request():
+        api_nums_raw = request.form.get("api_nums", "")
+        api_nums = api_nums_raw.replace(' ', '').split(',')
+        summary = get_well_group_summary(api_nums)
+        return fill_well_group_report_template(summary)
 
     def get_well_summary(api_num) -> dict:
         well_record = get_well_record(api_num)
@@ -241,7 +243,7 @@ def create_app(config: Config, environment_short_name: str = None) -> Flask:
 
         :return:
         """
-        api_nums = request.args.get("api_nums").split(',')
+        api_nums = request.args.get("api_nums").split(",")
         summary = get_well_group_summary(api_nums)
         return fill_well_group_report_template(summary)
 

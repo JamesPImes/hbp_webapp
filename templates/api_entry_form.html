@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>HBP Checker</title>
+</head>
+<body>
+
+<div>
+    <form action="/get_report" method="POST">
+        <p>Enter one or more API numbers*, separated by comma.</p>
+        <label>
+            <input type="text" name="api_nums" placeholder="05-123-45678, 05-001-98765-01-00, etc." size="48"
+                   pattern="([0-6][0-9]-[0-9]{3}-[0-9]{5}(-[0-9]{2}-[0-9]{2})?)(, ?([0-6][0-9]-[0-9]{3}-[0-9]{5}(-[0-9]{2}-[0-9]{2})?))*"/>
+            <input type="submit" value="Get Report"/>
+            <br><br><small>*API standard format:<br><u>05-123-45678</u> or <u>05-123-45678-00-00</u></small><br><br>
+        </label>
+    </form>
+
+    <div>
+        Note that not all states are supported. <strong>(In fact, only Colorado is currently supported -- i.e., API numbers beginning "05-").</strong>
+    </div>
+
+    <div>
+            <br><br>Some wells and API numbers for examples:
+            <ul>
+                <li>05-123-22710 (the "Cecil-31-2" well in Weld County, CO - <a
+                        href="https://ecmc.state.co.us/cogisdb/Facility/Production?api_county_code=123&api_seq_num=22710">link
+                    to production records</a>)
+                </li>
+                <li>05-123-21080 (the "PERKINS-12-22" well in Weld County, CO - <a
+                        href="https://ecmc.state.co.us/cogisdb/Facility/Production?api_county_code=123&api_seq_num=21080">link
+                    to production records</a>)
+                </li>
+                <li>05-123-14244 (the "PESCHEL-14-20" well in Weld County, CO - <a
+                        href="https://ecmc.state.co.us/cogisdb/Facility/Production?api_county_code=123&api_seq_num=14244">link
+                    to production records</a>)
+                </li>
+                <li>05-001-07834 (the "MAY-32-6" well in Adams County, CO - <a
+                        href="https://ecmc.state.co.us/cogisdb/Facility/Production?api_county_code=001&api_seq_num=07834">link
+                    to production records</a>)
+                </li>
+                <li>05-001-09205 (the "UPV-19-2N2" well in Adams County, CO - <a
+                        href="https://ecmc.state.co.us/cogisdb/Facility/Production?api_county_code=001&api_seq_num=09205">link
+                    to production records</a>, but no production)
+                </li>
+                <li>05-039-06509 (the "RUNNING CREEK RANCH-15-6" well in Elbert County, CO - <a
+                        href="https://ecmc.state.co.us/cogisdb/Facility/Production?api_county_code=039&api_seq_num=06509">link
+                    to production records</a>)
+                </li>
+                <li>05-039-06686 (the "Vulcan 6-64 10-8-1HN" well in Elbert County, CO - <a
+                        href="https://ecmc.state.co.us/cogisdb/Facility/Production?api_county_code=039&api_seq_num=06686">link
+                    to production records</a>)
+                </li>
+                <li>05-045-11663 (the "LINDAUER-GM 441-11" well in Garfield County, CO - <a
+                        href="https://ecmc.state.co.us/cogisdb/Facility/Production?api_county_code=045&api_seq_num=11663">link
+                    to production records</a>)
+                </li>
+                <li>05-045-15468 (the "BATTLEMENT MESA-36-13D" well in Garfield County, CO - <a
+                        href="https://ecmc.state.co.us/cogisdb/Facility/Production?api_county_code=045&api_seq_num=15468">link
+                    to production records</a>)
+                </li>
+            </ul>
+    </div>
+
+    <div><small>
+        <a href="https://en.wikipedia.org/wiki/API_well_number">Click here</a> for additional info on API well numbers.
+    </small></div>
+</div>
+<br><br>
+<div><small>Created by <a href="https://github.com/JamesPImes">James P. Imes</a></small></div>
+
+</body>
+</html>
