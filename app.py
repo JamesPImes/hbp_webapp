@@ -3,6 +3,7 @@ from datetime import timedelta, date
 
 import dotenv
 from flask import Flask, request, jsonify, render_template
+from markupsafe import Markup
 
 from backend.database.mongodb_well_record_manager import (
     get_well_record_manager_for_environment,
@@ -229,6 +230,43 @@ def create_app(config: Config, environment_short_name: str = None) -> Flask:
         for gap in gaps:
             output_str += "<br>" + str(gap)
         return output_str
+
+    def fill_well_group_report_template(well_group_summary: dict):
+        """
+        Fill out the ``well_group_report.html`` template with the
+        ``summary`` dict for a given well group.
+        :param well_group_summary:
+        :return:
+        """
+        summary = well_group_summary
+        well_simple_summaries = []
+        for well in summary["Well Records"]:
+            well_simple_summaries.append(f"{well['API Number']} ({well['Well Name']})")
+        gaps_segments = []
+        for category, data in summary["Researched Gaps"].items():
+            s = Markup("<h4>") + data["Description"] + Markup("</h4>") + "\n"
+            s += (
+                Markup("<h5>")
+                + f"Longest: {data['Longest (days)']} days"
+                + Markup("</h5>")
+                + "\n"
+            )
+            s += Markup("<ul>") + "\n"
+            for date_range_string in data["Date Ranges"]:
+                s += Markup("<li>") + date_range_string + Markup("</li>") + "\n"
+            s += Markup("</ul>") + "\n"
+            gaps_segments.append(s)
+        if not gaps_segments:
+            gaps_segments.append(
+                Markup("<h4>") + "No gaps were researched." + Markup("</h4>")
+            )
+        return render_template(
+            "well_group_report.html",
+            well_simple_summaries=well_simple_summaries,
+            first_date_of_production=summary["Earliest Reported Date"],
+            last_date_of_production=summary["Latest Reported Date"],
+            gaps_segments=gaps_segments,
+        )
 
     return app
 

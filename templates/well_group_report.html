@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Combined Production Report</title>
+</head>
+<body>
+<div><h1>Combined Production Report</h1></div>
+<div>
+    <h2> Considering wells: </h2>
+    <ul>
+        {% for simple_summary in well_simple_summaries %}
+        <li>{{simple_summary}}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div>
+    <h4>With production reported for <u>{{ first_date_of_production }}</u> through <u>{{ last_date_of_production }}</u></h4>
+</div>
+
+<div>
+    <h2>Gaps in production:</h2>
+    <b><i>(No wells in this group produced during these periods.)</i></b>
+    {% for segment in gaps_segments %}
+    {{ segment }}
+    {% endfor %}
+</div>
+
+</body>
+</html>
