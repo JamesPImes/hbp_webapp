@@ -231,6 +231,20 @@ def create_app(config: Config, environment_short_name: str = None) -> Flask:
             output_str += "<br>" + str(gap)
         return output_str
 
+    @app.route("/well_group_report", methods=["GET"])
+    def well_group_report_from_url_parameter():
+        """
+        Fill in the well group report template for the API numbers
+        provided in the URL.
+
+        Ex: ``'/well_group_report?api_nums=05-123-45678,05-987-65432'``
+
+        :return:
+        """
+        api_nums = request.args.get("api_nums").split(',')
+        summary = get_well_group_summary(api_nums)
+        return fill_well_group_report_template(summary)
+
     def fill_well_group_report_template(well_group_summary: dict):
         """
         Fill out the ``well_group_report.html`` template with the
@@ -244,7 +258,7 @@ def create_app(config: Config, environment_short_name: str = None) -> Flask:
             well_simple_summaries.append(f"{well['API Number']} ({well['Well Name']})")
         gaps_segments = []
         for category, data in summary["Researched Gaps"].items():
-            s = Markup("<h4>") + data["Description"] + Markup("</h4>") + "\n"
+            s = Markup("<h4><u>") + data["Description"] + Markup("</u></h4>") + "\n"
             s += (
                 Markup("<h5>")
                 + f"Longest: {data['Longest (days)']} days"
