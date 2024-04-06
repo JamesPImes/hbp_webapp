@@ -8,3 +8,4 @@ beautifulsoup4~=4.12.3
 gunicorn
 setuptools
 mongomock
+markupsafe
