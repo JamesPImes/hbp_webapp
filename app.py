@@ -34,7 +34,7 @@ CONFIGS = {
     "TEST": TestingConfig(),
 }
 
-CLEAN_CATEGORY_NAMES = {
+CATEGORY_DESCRIPTIONS = {
     NO_PROD_IGNORE_SHUTIN: "No production (ignore shut-in)",
     NO_PROD_BUT_SHUTIN_COUNTS: "No production (shut-in counts as production)",
 }
@@ -166,7 +166,7 @@ def create_app(config: Config, environment_short_name: str = None) -> Flask:
     def get_well_summary(api_num) -> dict:
         well_record = get_well_record(api_num)
         return summarize_well_record(
-            well_record, category_clean_names=CLEAN_CATEGORY_NAMES, between=" :: "
+            well_record, category_descriptions=CATEGORY_DESCRIPTIONS, between=" :: "
         )
 
     @app.route("/well_record/<api_num>", methods=["GET"])
@@ -192,7 +192,7 @@ def create_app(config: Config, environment_short_name: str = None) -> Flask:
             wg.find_gaps(category)
         summary = summarize_well_group(
             wg,
-            category_clean_names=CLEAN_CATEGORY_NAMES,
+            category_descriptions=CATEGORY_DESCRIPTIONS,
             between=" :: ",
             show_days=True,
             show_months=True,
