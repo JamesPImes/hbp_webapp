@@ -6,7 +6,7 @@ from pymongo import MongoClient
 import dotenv
 
 from backend.well_records import WellRecord
-from .well_record_manager import WellRecordManager
+from .well_record_data_gateway import WellRecordDataGateway
 from .mongodb_manager import MongoDBManager
 from .mongodb_loader import get_mongo_client_for_environment
 
@@ -14,9 +14,9 @@ from .mongodb_loader import get_mongo_client_for_environment
 dotenv.load_dotenv()
 
 
-class MongoDBWellRecordManager(MongoDBManager, WellRecordManager):
+class MongoDBWellRecordDataGateway(MongoDBManager, WellRecordDataGateway):
     """
-    Manager for a MongoDB database, specifically handling a collection
+    Gateway for a MongoDB database, specifically handling a collection
     of individual well records.
     """
 
@@ -54,7 +54,7 @@ class MongoDBWellRecordManager(MongoDBManager, WellRecordManager):
                 d["date_ranges"][dr_cat].append(str(dr))
         return d
 
-    def insert_well_record(self, well_record: WellRecord) -> None:
+    def insert(self, well_record: WellRecord, **kw) -> None:
         """
         Insert a new well record into the database.
         :param well_record: The ``WellRecord`` object to convert and
@@ -65,7 +65,7 @@ class MongoDBWellRecordManager(MongoDBManager, WellRecordManager):
         self.well_records_collection.insert_one(as_dict)
         return None
 
-    def find_well_record(self, api_num: str) -> WellRecord | None:
+    def find(self, api_num: str, **kw) -> WellRecord | None:
         """
         Find the record for a well in the database based on its unique
         API number and convert it to a ``WellRecord`` object. If not
@@ -78,7 +78,7 @@ class MongoDBWellRecordManager(MongoDBManager, WellRecordManager):
             wr = WellRecord.from_dict(dct)
         return wr
 
-    def delete_well_record(self, api_num: str) -> None:
+    def delete(self, api_num: str, **kw) -> None:
         """
         Delete the record for a well from the database based on its
         unique API number.
@@ -88,7 +88,7 @@ class MongoDBWellRecordManager(MongoDBManager, WellRecordManager):
         self.well_records_collection.delete_one({"_id": api_num})
         return None
 
-    def update_well_record(self, well_record: WellRecord, upsert=True) -> None:
+    def update(self, well_record: WellRecord, upsert=True) -> None:
         """
         Update the record for a well in the database. If not already in
         the database, it will be added if ``upsert=True`` (default
@@ -112,11 +112,11 @@ class MongoDBWellRecordManager(MongoDBManager, WellRecordManager):
         return None
 
 
-def get_well_record_manager_for_environment(
+def get_well_record_gateway_for_environment(
     environment: str,
-) -> MongoDBWellRecordManager:
+) -> MongoDBWellRecordDataGateway:
     """
-    Get a ``MongoDBWellRecordManager`` for the specified environment
+    Get a ``MongoDBWellRecordDataGateway`` for the specified environment
     (``'PROD'``, ``'DEV'``, or ``'TEST'``; or another environment
     category specified in the ``.env`` file -- see ``.env.example`` for
     details).
@@ -125,7 +125,7 @@ def get_well_record_manager_for_environment(
      raise an ``EnvironmentError`` if the necessary environment
      variables for this environment are not specified in the ``.env``
      file.)
-    :return: A configured ``MongoDBWellRecordManager``.
+    :return: A configured ``MongoDBWellRecordDataGateway``.
     """
 
     connection = get_mongo_client_for_environment(environment)
@@ -139,7 +139,7 @@ def get_well_record_manager_for_environment(
         raise EnvironmentError(
             f"Specify WELL_RECORDS_COLLECTION_{environment} environment variable."
         )
-    return MongoDBWellRecordManager(
+    return MongoDBWellRecordDataGateway(
         connection,
         db_name=db_name,
         well_records_collection_name=collection_name,
@@ -147,6 +147,6 @@ def get_well_record_manager_for_environment(
 
 
 __all__ = [
-    "MongoDBWellRecordManager",
-    "get_well_record_manager_for_environment",
+    "MongoDBWellRecordDataGateway",
+    "get_well_record_gateway_for_environment",
 ]

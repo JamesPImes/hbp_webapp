@@ -5,8 +5,8 @@ import dotenv
 from flask import Flask, request, jsonify, render_template
 from markupsafe import Markup
 
-from backend.database.mongodb_well_record_manager import (
-    get_well_record_manager_for_environment,
+from backend.database.mongodb_well_record_data_gateway import (
+    get_well_record_gateway_for_environment,
 )
 from backend.data_analyzer.well_group import WellGroup
 from backend.well_records.well_record import WellRecord
@@ -16,8 +16,8 @@ from backend.well_records.standard_categories import (
 )
 from backend.data_collector.well_data_scraper import ScraperWellDataCollector
 from backend.data_collector.state_configs import STATE_CODE_SCRAPER_CONFIGS
-from backend.database.well_record_manager import WellRecordManager
-from backend.database.mongodb_well_record_manager import MongoDBWellRecordManager
+from backend.database.well_record_data_gateway import WellRecordDataGateway
+from backend.database.mongodb_well_record_data_gateway import MongoDBWellRecordDataGateway
 from backend.summarizer.summarizer import summarize_well_group, summarize_well_record
 from backend.utils.validate_api_num import validate_api_num
 from backend.utils.state_codes import STATE_CODES
@@ -56,7 +56,7 @@ def _get_config_from_state_code(state_code: str, logger: logging.Logger = None) 
 
 def try_database_then_scraper(
     api_num: str,
-    wrm: WellRecordManager,
+    wrg: WellRecordDataGateway,
     store_after: bool = True,
     max_record_age_in_days=3650,
     config_override: dict = None,
@@ -65,7 +65,7 @@ def try_database_then_scraper(
     """
     Get a ``WellRecord`` for the well with the specified API number.
     Will first attempt to pull it from the database that is configured
-    in the ``WellRecordManager`` passed as ``wrm``. If no record exists
+    in the ``WellRecordManager`` passed as ``wrg``. If no record exists
     for the well in the database, or if the record is older than the
     specified ``max_record_age_in_days``, will attempt to scrape it from
     the public records. Optionally, the scraped record will be stored to
@@ -80,7 +80,7 @@ def try_database_then_scraper(
     ``ValueError`` will be raised.
 
     :param api_num: The unique API number of the well to be pulled.
-    :param wrm: The ``WellRecordManager`` in control of the database.
+    :param wrg: The ``WellRecordManager`` in control of the database.
     :param store_after: (Optional) If the requested well must be
      scraped from public records, the resulting record will be added to
      the database if this is ``True`` (the default behavior).
@@ -100,7 +100,7 @@ def try_database_then_scraper(
         raise ValueError("Invalid API number")
     state_code = api_num[:2]
     scraper_config = config_override
-    well_record = wrm.find_well_record(api_num=api_num)
+    well_record = wrg.find(api_num=api_num)
     if well_record is None:
         if logger is not None:
             logger.log(logging.INFO, f"No existing records for {api_num}; scraping.")
@@ -111,7 +111,7 @@ def try_database_then_scraper(
         if store_after:
             if logger is not None:
                 logger.log(logging.INFO, f"Inserting record for {api_num} into DB.")
-            wrm.insert_well_record(well_record)
+            wrg.insert(well_record)
     elif (
         well_record.record_access_date is None
         or date.today()
@@ -130,7 +130,7 @@ def try_database_then_scraper(
         if store_after:
             if logger is not None:
                 logger.log(logging.INFO, f"Updating record for {api_num} in DB.")
-            wrm.update_well_record(well_record)
+            wrg.update(well_record)
     else:
         if logger is not None:
             logger.log(logging.INFO, f"Existing record for {api_num} found in DB.")
@@ -153,7 +153,7 @@ def create_app(config: Config, environment_short_name: str = None) -> Flask:
     if environment_short_name is None:
         environment_short_name = config.ENVIRONMENT_SHORT_NAME
 
-    wrm = get_well_record_manager_for_environment(environment_short_name)
+    wrg = get_well_record_gateway_for_environment(environment_short_name)
 
     @app.route("/")
     def main():
@@ -188,7 +188,7 @@ def create_app(config: Config, environment_short_name: str = None) -> Flask:
         """
         wg = WellGroup()
         for num in api_nums:
-            well_record = try_database_then_scraper(num, wrm)
+            well_record = try_database_then_scraper(num, wrg)
             wg.add_well_record(well_record)
         for category in wg.shared_categories():
             # This stores the researched category and resulting gaps to `wg.researched_gaps`.
@@ -211,7 +211,7 @@ def create_app(config: Config, environment_short_name: str = None) -> Flask:
     def get_well_record(api_num):
         return try_database_then_scraper(
             api_num,
-            wrm,
+            wrg,
             store_after=True,
             max_record_age_in_days=app.config["MAX_ACCEPTABLE_RECORD_AGE_IN_DAYS"],
             logger=app.logger,

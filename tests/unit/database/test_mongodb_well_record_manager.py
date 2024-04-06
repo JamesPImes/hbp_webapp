@@ -9,7 +9,7 @@ from backend.well_records import (
     NO_PROD_IGNORE_SHUTIN,
     NO_PROD_BUT_SHUTIN_COUNTS,
 )
-from backend.database import MongoDBWellRecordManager
+from backend.database import MongoDBWellRecordDataGateway
 
 
 def get_example_well_record():
@@ -32,16 +32,16 @@ def get_example_well_record():
 
 
 # Use a mongomock.MongoClient instead of (real) pymongo.MongoClient.
-mock_connection = MongoClient("localhost", 27017)
+MOCK_CONNECTION = MongoClient("localhost", 27017)
 # MongoDBWellRecordManager handles interactions with the database.
-WRM = MongoDBWellRecordManager(
-    mock_connection, "hbp_webapp_test", well_records_collection_name="well_records_test"
+GATEWAY = MongoDBWellRecordDataGateway(
+    MOCK_CONNECTION, "hbp_webapp_test", well_records_collection_name="well_records_test"
 )
 EXAMPLE_RECORD = get_example_well_record()
 
 
 def drop_test_collection():
-    WRM.database.drop_collection(WRM.well_records_collection_name)
+    GATEWAY.database.drop_collection(GATEWAY.well_records_collection_name)
 
 
 class TestMongoDBWellRecordManager_insert(unittest.TestCase):
@@ -55,8 +55,8 @@ class TestMongoDBWellRecordManager_insert(unittest.TestCase):
         return None
 
     def test_insert_well_record_count(self):
-        WRM.insert_well_record(EXAMPLE_RECORD)
-        self.assertEqual(1, WRM.well_records_collection.count_documents({}))
+        GATEWAY.insert(EXAMPLE_RECORD)
+        self.assertEqual(1, GATEWAY.well_records_collection.count_documents({}))
 
 
 class TestMongoDBWellRecordManager_findSuccessful(unittest.TestCase):
@@ -67,8 +67,8 @@ class TestMongoDBWellRecordManager_findSuccessful(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         drop_test_collection()
-        WRM.insert_well_record(cls.example_record)
-        cls.recovered_record = WRM.find_well_record(cls.example_record.api_num)
+        GATEWAY.insert(cls.example_record)
+        cls.recovered_record = GATEWAY.find(cls.example_record.api_num)
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -119,8 +119,8 @@ class TestMongoDBWellRecordManager_findUnsuccessful(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         drop_test_collection()
-        WRM.insert_well_record(cls.example_record)
-        cls.recovered_record = WRM.find_well_record("00-123-45678")
+        GATEWAY.insert(cls.example_record)
+        cls.recovered_record = GATEWAY.find("00-123-45678")
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -139,12 +139,12 @@ class TestMongoDBWellRecordManager_update(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         drop_test_collection()
-        WRM.insert_well_record(cls.example_record)
+        GATEWAY.insert(cls.example_record)
         updated_example_record = get_example_well_record()
         # Get rid of one of the date ranges for NO_PROD_IGNORE_SHUTIN.
         updated_example_record.date_ranges[NO_PROD_IGNORE_SHUTIN].date_ranges.pop()
-        WRM.update_well_record(updated_example_record)
-        cls.recovered_record = WRM.find_well_record(cls.example_record.api_num)
+        GATEWAY.update(updated_example_record)
+        cls.recovered_record = GATEWAY.find(cls.example_record.api_num)
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -209,10 +209,10 @@ class TestMongoDBWellRecordManager_delete(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         drop_test_collection()
-        WRM.insert_well_record(cls.example_record)
-        cls.original_recovered_record = WRM.find_well_record(cls.example_record.api_num)
-        WRM.delete_well_record(cls.example_record.api_num)
-        cls.final_recovered_record = WRM.find_well_record(cls.example_record.api_num)
+        GATEWAY.insert(cls.example_record)
+        cls.original_recovered_record = GATEWAY.find(cls.example_record.api_num)
+        GATEWAY.delete(cls.example_record.api_num)
+        cls.final_recovered_record = GATEWAY.find(cls.example_record.api_num)
 
     @classmethod
     def tearDownClass(cls) -> None:

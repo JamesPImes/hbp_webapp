@@ -16,19 +16,19 @@ from backend.data_analyzer import WellGroup
 from backend.data_collector import ScraperWellDataCollector
 from backend.data_collector.state_configs import COLORADO_CONFIG
 from backend.well_records import NO_PROD_IGNORE_SHUTIN
-from backend.database import MongoDBWellRecordManager
+from backend.database import MongoDBWellRecordDataGateway
 
 
 # Use a mongomock.MongoClient instead of (real) pymongo.MongoClient.
-mock_connection = MongoClient("localhost", 27017)
-# MongoDBWellRecordManager handles interactions with the database.
-WRM = MongoDBWellRecordManager(
-    mock_connection, "hbp_webapp_test", well_records_collection_name="well_records_test"
+MOCK_CONNECTION = MongoClient("localhost", 27017)
+# MongoDBWellRecordDataGateway handles interactions with the database.
+GATEWAY = MongoDBWellRecordDataGateway(
+    MOCK_CONNECTION, "hbp_webapp_test", well_records_collection_name="well_records_test"
 )
 
 
 def drop_test_collection():
-    WRM.database.drop_collection(WRM.well_records_collection_name)
+    GATEWAY.database.drop_collection(GATEWAY.well_records_collection_name)
 
 
 class TestScrapeAndStore(unittest.TestCase):
@@ -83,7 +83,7 @@ class TestScrapeAndStore(unittest.TestCase):
             # Add well record to the WellGroup.
             cls.well_group.well_records.append(well_record)
             # Insert well record into the database.
-            WRM.insert_well_record(well_record)
+            GATEWAY.insert(well_record)
         return None
 
     @classmethod
@@ -94,7 +94,7 @@ class TestScrapeAndStore(unittest.TestCase):
         self.assertEqual(2, len(self.well_group.well_records))
 
     def test_database(self):
-        self.assertEqual(2, WRM.well_records_collection.count_documents({}))
+        self.assertEqual(2, GATEWAY.well_records_collection.count_documents({}))
 
     def test_find_gaps(self):
         ignore_si_gaps = self.well_group.find_gaps(category=NO_PROD_IGNORE_SHUTIN)
