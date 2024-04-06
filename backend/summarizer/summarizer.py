@@ -148,11 +148,17 @@ def summarize_well_group(
     summary = {
         "Well Count": len(wg.well_records),
         "API Numbers": [wr.api_num for wr in wg.well_records],
-        "Earliest Reported Date": f"{wg.find_first_date():%Y-%m-%d}",
-        "Latest Reported Date": f"{wg.find_last_date():%Y-%m-%d}",
+        "Earliest Reported Date": "No production reported",
+        "Latest Reported Date": "No production reported",
         "Researched Gaps": {},
         "Well Records": [],
     }
+    first_date = wg.find_first_date()
+    if first_date is not None:
+        summary["Earliest Reported Date"] = f"{first_date:%Y-%m-%d}"
+    last_date = wg.find_last_date()
+    if last_date is not None:
+        f"{last_date:%Y-%m-%d}"
     for category, gaps in wg.researched_gaps.items():
         gaps_summary = summarize_date_range_group(
             gaps,
