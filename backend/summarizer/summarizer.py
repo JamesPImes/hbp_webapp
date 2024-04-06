@@ -70,7 +70,7 @@ def summarize_date_range_group(
 
 def summarize_well_record(
     wr: WellRecord,
-    category_clean_names: dict[str, str] = None,
+    category_descriptions: dict[str, str] = None,
     between="::",
     show_days: bool = False,
     show_months: bool = False,
@@ -79,10 +79,10 @@ def summarize_well_record(
     Summarize a well record's data fields into a dict.
 
     :param wr: The ``WellRecord`` instance to summarize.
-    :param category_clean_names: (Optional) Pass a dict whose keys are
+    :param category_descriptions: (Optional) Pass a dict whose keys are
      the 'official' categories of date ranges registered to the well
-     record; and whose values are the 'clean' version that should appear
-     in the output dict instead (e.g.,
+     record; and whose values are a brief description of what that
+     category means (e.g.,
      ``{'NO_PROD_IGNORE_SHUTIN'``: ``'No production (ignore shut-in)'}``).
     :param between: The string to go between the start/end date of each
      date range. (Default: ``'::'``).
@@ -92,8 +92,8 @@ def summarize_well_record(
      range in calendar months. (Default: ``False``)
     :return: A dict summarizing the fields in the well record.
     """
-    if category_clean_names is None:
-        category_clean_names = {}
+    if category_descriptions is None:
+        category_descriptions = {}
     data_fields = {
         "API Number": wr.api_num,
         "Well Name": "Unknown",
@@ -115,14 +115,14 @@ def summarize_well_record(
         drgroup_summary = summarize_date_range_group(
             drgroup, between=between, show_days=show_days, show_months=show_months
         )
-        cat_name = category_clean_names.get(category, category)
-        data_fields["Date Ranges"][cat_name] = drgroup_summary
+        drgroup_summary["Description"] = category_descriptions.get(category, category)
+        data_fields["Date Ranges"][category] = drgroup_summary
     return data_fields
 
 
 def summarize_well_group(
     wg: WellGroup,
-    category_clean_names: dict[str, str] = None,
+    category_descriptions: dict[str, str] = None,
     between="::",
     show_days: bool = False,
     show_months: bool = False,
@@ -131,10 +131,10 @@ def summarize_well_group(
     Summarize a well group's data fields into a dict.
 
     :param wg: The ``WellGroup`` instance to summarize.
-    :param category_clean_names: (Optional) Pass a dict whose keys are
+    :param category_descriptions: (Optional) Pass a dict whose keys are
      the 'official' categories of date ranges registered to the well
-     records; and whose values are the 'clean' version that should
-     appear in the output dict instead (e.g.,
+     record; and whose values are a brief description of what that
+     category means (e.g.,
      ``{'NO_PROD_IGNORE_SHUTIN'``: ``'No production (ignore shut-in)'}``).
     :param between: The string to go between the start/end date of each
      date range. (Default: ``'::'``).
@@ -143,8 +143,8 @@ def summarize_well_group(
     :param show_months: Whether to include the duration of each date
      range in calendar months. (Default: ``False``)
     """
-    if category_clean_names is None:
-        category_clean_names = {}
+    if category_descriptions is None:
+        category_descriptions = {}
     summary = {
         "Well Count": len(wg.well_records),
         "API Numbers": [wr.api_num for wr in wg.well_records],
@@ -154,18 +154,18 @@ def summarize_well_group(
         "Well Records": [],
     }
     for category, gaps in wg.researched_gaps.items():
-        cat_name = category_clean_names.get(category, category)
         gaps_summary = summarize_date_range_group(
             gaps,
             between=between,
             show_days=show_days,
             show_months=show_months,
         )
-        summary["Researched Gaps"][cat_name] = gaps_summary
+        gaps_summary["Description"] = category_descriptions.get(category, category)
+        summary["Researched Gaps"][category] = gaps_summary
     for wr in wg.well_records:
         wrsummary = summarize_well_record(
             wr,
-            category_clean_names=category_clean_names,
+            category_descriptions=category_descriptions,
             between=between,
             show_days=show_days,
             show_months=show_months,
