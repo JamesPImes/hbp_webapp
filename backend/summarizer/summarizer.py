@@ -158,7 +158,7 @@ def summarize_well_group(
         summary["Earliest Reported Date"] = f"{first_date:%Y-%m-%d}"
     last_date = wg.find_last_date()
     if last_date is not None:
-        f"{last_date:%Y-%m-%d}"
+        summary["Latest Reported Date"] = f"{last_date:%Y-%m-%d}"
     for category, gaps in wg.researched_gaps.items():
         gaps_summary = summarize_date_range_group(
             gaps,
