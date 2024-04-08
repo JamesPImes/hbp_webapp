@@ -1,4 +1,5 @@
 import unittest
+import unittest.mock
 from datetime import date
 from pathlib import Path
 
@@ -17,6 +18,7 @@ class TestScraperWellDataCollector(unittest.TestCase):
     # Note: This well was P&A'd in 2021.
     api_num = "05-123-27133"
     well_name = "VILLAGE-11-16DU"
+    extracted_url = None
     html_mock_fp: Path = (
         Path(__file__).parent.parent.parent / r"_test_data/testpage_05-123-27133_html"
     )
@@ -31,6 +33,8 @@ class TestScraperWellDataCollector(unittest.TestCase):
         # Mock the scraped raw HTML from a saved local copy.
         with open(Path(cls.html_mock_fp), mode="r") as file:
             cls.html_mock = "\n".join(file.readlines())
+        scraper.get_html = unittest.mock.MagicMock(return_value=cls.html_mock)
+        html = scraper.get_html(cls.extracted_url)
         cls.well_data = scraper.extract_well_record_from_html(
             cls.html_mock, cls.api_num
         )
