@@ -1,4 +1,4 @@
-git+https://github.com/JamesPImes/og_production_analyzer@v0.2.1
+git+https://github.com/JamesPImes/og_production_analyzer@v0.2.2
 Flask~=3.0.2
 pytest
 pandas~=2.2.1
