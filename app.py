@@ -214,23 +214,22 @@ def create_app(config: Config) -> Flask:
     def metrics():
         """Basic metrics."""
         # Do not increment request_count for '/metrics' request.
-        configured_states = sorted(well_record_controller.collectors.keys())
-        well_record_count = app.metrics.get('well_record_count')
+        well_record_count = app.metrics.get("well_record_count")
         total_access_time = app.metrics.get("total_record_access_time_in_milliseconds")
         avg_access_time = "n/a"
         if well_record_count != 0:
             avg_access_time = int(total_access_time / well_record_count)
         fields = [
-            f"Configured state codes: {configured_states}",
             f"Uptime: {app.metrics.uptime}",
             f"Requests: {app.metrics.get('request_count')}",
             f"Well records pulled: {well_record_count}",
             f"Avg well record access time (ms): {avg_access_time}",
         ]
-        if configured_states:
-            return "200", "\n".join(fields)
-        else:
-            return "500", f"No state codes configured."
+        try:
+            well_record_controller.gateway.find("dummy")
+        except:
+            return "500", f"Database could not be reached."
+        return "200", "\n".join(fields)
 
     return app
 
