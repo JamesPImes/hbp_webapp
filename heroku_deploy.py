@@ -1,11 +1,11 @@
 """
-Create app instance for Heroku deployment.
+Create app instance for deployment.
 """
 
-from app import create_app, CONFIGS
+from create_app import Config, create_app
 
-app = create_app(CONFIGS["PROD"])
 
+app = create_app(Config())
 
 if __name__ == "__main__":
     app.run()

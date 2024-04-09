@@ -20,7 +20,7 @@ from backend.well_record_controller import WellRecordController
 from backend.utils.validate_api_num import validate_api_num
 from backend.metrics import MetricsController
 
-from config import Config
+from .config import Config
 
 COLLECTORS = {
     "05": ScraperWellDataCollector.from_config(STATE_CODE_SCRAPER_CONFIGS["05"]),
@@ -227,6 +227,6 @@ def create_app(config: Config = None) -> Flask:
     return app
 
 
-if __name__ == "__main__":
-    app = create_app()
-    app.run()
+__all__ = [
+    "create_app",
+]
