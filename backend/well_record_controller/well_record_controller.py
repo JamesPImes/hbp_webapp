@@ -22,7 +22,7 @@ class WellRecordController:
     ) -> None:
         if collectors is None:
             collectors = {}
-        self.gateway = gateway
+        self.gateway: WellRecordDataGateway = gateway
         self.collectors: dict[str, WellDataCollector] = collectors.copy()
         self.logger: logging.Logger = logger
 
