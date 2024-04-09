@@ -1,5 +1,4 @@
-import logging
-from datetime import timedelta, date, datetime
+from datetime import datetime
 
 import dotenv
 from flask import Flask, request, jsonify, render_template
@@ -10,8 +9,6 @@ from backend.data_analyzer.well_group import WellGroup
 from backend.well_records.well_record import WellRecord
 from backend.well_records.standard_categories import (
     CATEGORY_DESCRIPTIONS,
-    NO_PROD_IGNORE_SHUTIN,
-    NO_PROD_BUT_SHUTIN_COUNTS,
 )
 from backend.data_collector.well_data_scraper import ScraperWellDataCollector
 from backend.data_collector.state_configs import STATE_CODE_SCRAPER_CONFIGS
@@ -21,7 +18,6 @@ from backend.database.mongodb_well_record_data_gateway import (
 from backend.summarizer.summarizer import summarize_well_group, summarize_well_record
 from backend.well_record_controller import WellRecordController
 from backend.utils.validate_api_num import validate_api_num
-from backend.utils.state_codes import STATE_CODES
 from backend.metrics import MetricsController
 
 from config import (
