@@ -20,18 +20,7 @@ from backend.well_record_controller import WellRecordController
 from backend.utils.validate_api_num import validate_api_num
 from backend.metrics import MetricsController
 
-from config import (
-    Config,
-    DevelopmentConfig,
-    TestingConfig,
-    ProductionConfig,
-)
-
-CONFIGS = {
-    "PROD": ProductionConfig(),
-    "DEV": DevelopmentConfig(),
-    "TEST": TestingConfig(),
-}
+from config import Config
 
 COLLECTORS = {
     "05": ScraperWellDataCollector.from_config(STATE_CODE_SCRAPER_CONFIGS["05"]),
@@ -40,28 +29,36 @@ COLLECTORS = {
 dotenv.load_dotenv()
 
 
-def create_app(config: Config) -> Flask:
+def get_mongo_gateway(config: Config) -> MongoDBWellRecordDataGateway:
+    """Get a ``MongoDBWellRecordDataGateway`` as configured."""
+    return MongoDBWellRecordDataGateway(
+        connection=MongoClient(config.DATABASE_CONNECTION_STRING),
+        db_name=config.DATABASE_NAME,
+        well_records_collection_name=config.WELL_RECORDS_COLLECTION,
+    )
+
+
+def create_app(config: Config = None) -> Flask:
     """
 
     :param config:
     :return:
     """
+    if config is None:
+        config = Config
     app = Flask(__name__)
     app.config.from_object(config)
+
     # Construct the WellRecordController.
-    if config.MONGO_CONNECTION_STRING is None and config.MONGO_URI is None:
+    gateway = None
+    if config.DATABASE_PROGRAM == "MongoDB":
+        gateway = get_mongo_gateway(config)
+    # If other database programs are used, would need to add code to get
+    # the appropriate gateway here.
+    # if config.DATABASE_PROGRAM == "something_else":
+    # ...
+    if gateway is None:
         raise RuntimeError("The database must be configured.")
-    connection_string = config.MONGO_CONNECTION_STRING
-    if connection_string is None:
-        connection_string = config.MONGO_URI.format(
-            username=config.MONGO_USER, password=config.MONGO_PASS
-        )
-    connection = MongoClient(connection_string)
-    gateway = MongoDBWellRecordDataGateway(
-        connection=connection,
-        db_name=config.DATABASE_NAME,
-        well_records_collection_name=config.WELL_RECORDS_COLLECTION,
-    )
     well_record_controller = WellRecordController(
         gateway=gateway, collectors=COLLECTORS, logger=app.logger
     )
@@ -231,5 +228,5 @@ def create_app(config: Config) -> Flask:
 
 
 if __name__ == "__main__":
-    app = create_app(CONFIGS["DEV"])
+    app = create_app()
     app.run()
