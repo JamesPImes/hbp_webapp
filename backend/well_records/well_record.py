@@ -1,24 +1,7 @@
 from __future__ import annotations
-from datetime import date, datetime
-from typing import Callable
+from datetime import date
 
-from .date_range import DateRange, DateRangeGroup, _default_daterange_parse_func
-
-
-def _convert_date(d: datetime | None) -> date | None:
-    """
-    INTERNAL USE:
-
-    Convert a ``datetime`` to a ``date`` object. If ``d`` is None,
-    return None.
-    :param d:
-    :return:
-    """
-    if isinstance(d, datetime):
-        return d.date()
-    elif isinstance(d, date) or d is None:
-        return d
-    raise TypeError("Passed object is neither `None` nor of type `datetime` or `date`.")
+from .date_range import DateRange, DateRangeGroup
 
 
 class WellRecord:
@@ -70,60 +53,6 @@ class WellRecord:
     def date_ranges_by_category(self, category) -> DateRangeGroup:
         """Get the ``DateRangeGroup`` for the specified ``category``."""
         return self.date_ranges.get(category, DateRangeGroup())
-
-    @staticmethod
-    def from_dict(
-        d: dict, unpack_date_ranges_func: Callable = _default_daterange_parse_func
-    ) -> WellRecord:
-        """
-        Convert a dict ``d`` into a ``WellRecord``. The dict should
-        contain the following keys and values (with types):
-
-        - ``'api_num'`` (str): The unique API number for this well.
-            (Technically, this is the only required key in the dict.)
-
-        - ``'well_name'`` (str): The name of the well.
-
-        - ``'first_date'`` (``datetime``, ``date``, or ``None``): The
-            first date of production records.
-
-        - ``'last_date'`` (``datetime``, ``date``, or ``None``): The
-            last date of production records.
-
-        - ``'record_access_date'`` (``datetime``, ``date``, or
-            ``None``): The date on which the production records were
-            pulled from the official source.
-
-        - ``'date_ranges'`` (``dict[str: list[str]]``): A dict of lists,
-            keyed by the name of the category of the date range, with
-            each list containing the respective date ranges, each in the
-            form of a string (e.g., ``'2019-01-01::2020-12-31'``, the
-            default format).
-
-        Any other keys will be ignored.
-
-        :param d: The dict to convert to a ``WellRecord`` (with keys and
-         values as stated above).
-        :param unpack_date_ranges_func: This function will take in each
-         date range string in the lists stored at ``d['date_ranges']``
-         and convert them to a ``DateRange`` object. The default
-         function assumes that the date range strings are formatted as
-         ``'2019-01-01::2020-12-31'``.
-        :return: A new ``WellRecord`` with all date ranges registered.
-        """
-        wr = WellRecord(
-            api_num=d.get("api_num"),
-            well_name=d.get("well_name"),
-            first_date=_convert_date(d.get("first_date")),
-            last_date=_convert_date(d.get("last_date")),
-            record_access_date=_convert_date(d.get("record_access_date")),
-        )
-        for category, date_ranges_raw in d.get("date_ranges", {}).items():
-            wr.register_empty_category(category)
-            for dr_raw in date_ranges_raw:
-                dr = unpack_date_ranges_func(dr_raw)
-                wr.register_date_range(dr, category)
-        return wr
 
     def __str__(self):
         well_name = self.well_name

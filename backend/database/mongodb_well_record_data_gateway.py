@@ -1,17 +1,14 @@
 from __future__ import annotations
-import os
-from datetime import datetime
+from datetime import datetime, date
+from typing import Callable
 
 from pymongo import MongoClient
-import dotenv
 
 from backend.well_records import WellRecord
+from backend.well_records.date_range import _default_daterange_parse_func
+
 from .well_record_data_gateway import WellRecordDataGateway
 from .mongodb_manager import MongoDBManager
-from .mongodb_loader import get_mongo_client_for_environment
-
-
-dotenv.load_dotenv()
 
 
 class MongoDBWellRecordDataGateway(MongoDBManager, WellRecordDataGateway):
@@ -28,11 +25,29 @@ class MongoDBWellRecordDataGateway(MongoDBManager, WellRecordDataGateway):
         self.well_records_collection = self.database[well_records_collection_name]
 
     @staticmethod
+    def _convert_date(d: datetime | None) -> date | None:
+        """
+        INTERNAL USE:
+
+        Convert a ``datetime`` to a ``date`` object. If ``d`` is None,
+        return None.
+        :param d:
+        :return:
+        """
+        if isinstance(d, datetime):
+            return d.date()
+        elif isinstance(d, date) or d is None:
+            return d
+        raise TypeError(
+            "Passed object is neither `None` nor of type `datetime` or `date`."
+        )
+
+    @staticmethod
     def _well_record_to_dict(well_record: WellRecord) -> dict:
         """
         INTERNAL USE:
-        Convert a ``WellRecord`` object into a dict, able to be inserted
-        into the MongoDB database.
+        Prep a ``WellRecord`` to be inserted into the MongoDB database,
+        by converting it into a dict.
 
         :param well_record:
         :return:
@@ -53,6 +68,71 @@ class MongoDBWellRecordDataGateway(MongoDBManager, WellRecordDataGateway):
             for dr in dr_group:
                 d["date_ranges"][dr_cat].append(str(dr))
         return d
+
+    @classmethod
+    def _dict_to_well_record(
+        cls,
+        well_record_dict: dict,
+        unpack_date_ranges_func: Callable = _default_daterange_parse_func,
+    ) -> WellRecord:
+        """
+        INTERNAL USE:
+        Map a returned MongoDB document to a ``WellRecord``.
+
+        Specifically, convert a dict ``well_record_dict`` into a
+        ``WellRecord``. The dict should contain the following keys and
+        values (with types):
+
+        - ``'_id'`` (str): The unique API number for this well.
+            (Technically, this is the only required key in the dict.)
+
+        - ``'well_name'`` (str): The name of the well.
+
+        - ``'first_date'`` (``datetime``, ``date``, or ``None``): The
+            first date of production records.
+
+        - ``'last_date'`` (``datetime``, ``date``, or ``None``): The
+            last date of production records.
+
+        - ``'record_access_date'`` (``datetime``, ``date``, or
+            ``None``): The date on which the production records were
+            pulled from the official source.
+
+        - ``'date_ranges'`` (``dict[str: list[str]]``): A dict of lists,
+            keyed by the name of the category of the date range, with
+            each list containing the respective date ranges, each in the
+            form of a string (e.g., ``'2019-01-01::2020-12-31'``, the
+            default format).
+
+        Any other keys will be ignored.
+
+        :param well_record_dict: The dict to convert to a ``WellRecord``
+         (with keys and values as stated above).
+        :param unpack_date_ranges_func: This function will take in each
+         date range string in the lists stored at
+         ``well_record_dict['date_ranges']`` and convert them to a
+         ``DateRange`` object. The default function assumes that the
+         date range strings are formatted as ``'2019-01-01::2020-12-31'``.
+        :return: A new ``WellRecord`` with all date ranges registered.
+        """
+        wr = WellRecord(
+            # our schema uses the API number as the id.
+            api_num=well_record_dict.get("_id"),
+            well_name=well_record_dict.get("well_name"),
+            first_date=cls._convert_date(well_record_dict.get("first_date")),
+            last_date=cls._convert_date(well_record_dict.get("last_date")),
+            record_access_date=cls._convert_date(
+                well_record_dict.get("record_access_date")
+            ),
+        )
+        for category, date_ranges_raw in well_record_dict.get(
+            "date_ranges", {}
+        ).items():
+            wr.register_empty_category(category)
+            for dr_raw in date_ranges_raw:
+                dr = unpack_date_ranges_func(dr_raw)
+                wr.register_date_range(dr, category)
+        return wr
 
     def insert(self, well_record: WellRecord, **kw) -> None:
         """
@@ -75,7 +155,7 @@ class MongoDBWellRecordDataGateway(MongoDBManager, WellRecordDataGateway):
         dct = self.well_records_collection.find_one({"_id": api_num})
         if dct is not None:
             dct["api_num"] = api_num
-            wr = WellRecord.from_dict(dct)
+            wr = self._dict_to_well_record(dct)
         return wr
 
     def delete(self, api_num: str, **kw) -> None:
@@ -112,41 +192,6 @@ class MongoDBWellRecordDataGateway(MongoDBManager, WellRecordDataGateway):
         return None
 
 
-def get_well_record_gateway_for_environment(
-    environment: str,
-) -> MongoDBWellRecordDataGateway:
-    """
-    Get a ``MongoDBWellRecordDataGateway`` for the specified environment
-    (``'PROD'``, ``'DEV'``, or ``'TEST'``; or another environment
-    category specified in the ``.env`` file -- see ``.env.example`` for
-    details).
-
-    :param environment: ``'PROD'``, ``'DEV'``, ``'TEST'``, etc. (Will
-     raise an ``EnvironmentError`` if the necessary environment
-     variables for this environment are not specified in the ``.env``
-     file.)
-    :return: A configured ``MongoDBWellRecordDataGateway``.
-    """
-
-    connection = get_mongo_client_for_environment(environment)
-    db_name = os.environ.get(f"DATABASE_NAME_{environment}")
-    if db_name is None:
-        raise EnvironmentError(
-            f"Specify DATABASE_NAME_{environment} environment variable."
-        )
-    collection_name = os.environ.get(f"WELL_RECORDS_COLLECTION_{environment}")
-    if collection_name is None:
-        raise EnvironmentError(
-            f"Specify WELL_RECORDS_COLLECTION_{environment} environment variable."
-        )
-    return MongoDBWellRecordDataGateway(
-        connection,
-        db_name=db_name,
-        well_records_collection_name=collection_name,
-    )
-
-
 __all__ = [
     "MongoDBWellRecordDataGateway",
-    "get_well_record_gateway_for_environment",
 ]

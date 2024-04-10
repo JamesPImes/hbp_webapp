@@ -1,12 +1,7 @@
 import unittest
-from datetime import date, datetime
+from datetime import date
 
-from backend.well_records import (
-    WellRecord,
-    DateRange,
-    NO_PROD_IGNORE_SHUTIN,
-    NO_PROD_BUT_SHUTIN_COUNTS,
-)
+from backend.well_records import WellRecord, DateRange
 
 
 class TestWellRecord(unittest.TestCase):
@@ -49,59 +44,6 @@ class TestWellRecord(unittest.TestCase):
         )
         number_of_date_ranges = len(date_ranges_for_test_cat.date_ranges)
         self.assertEqual(2, number_of_date_ranges)
-
-
-class TestWellRecord_fromDict(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        d = {
-            "_id": "05-987-65432",
-            "api_num": "05-987-65432",
-            "first_date": datetime(2020, 12, 1),
-            "last_date": datetime(2024, 1, 1),
-            "record_access_date": datetime(2024, 3, 31),
-            "date_ranges": {
-                NO_PROD_IGNORE_SHUTIN: [
-                    "2021-01-01::2022-12-31",
-                    "2023-01-01::2023-07-31",
-                ],
-                NO_PROD_BUT_SHUTIN_COUNTS: [],
-            },
-        }
-        cls.well_record = WellRecord.from_dict(d)
-
-    def test_date_ranges_by_category_noprod(self):
-        """Test that we can recall date ranges by category."""
-        date_ranges_for_test_cat = self.well_record.date_ranges_by_category(
-            category=NO_PROD_IGNORE_SHUTIN
-        )
-        number_of_date_ranges = len(date_ranges_for_test_cat.date_ranges)
-        self.assertEqual(2, number_of_date_ranges)
-
-    def test_date_ranges_by_category_noprod_daterange1_start_date(self):
-        """Test that we can recall date ranges by category."""
-        date_ranges_for_test_cat = self.well_record.date_ranges_by_category(
-            category=NO_PROD_IGNORE_SHUTIN
-        )
-        dr1 = date_ranges_for_test_cat[0]
-        self.assertEqual(date(2021, 1, 1), dr1.start_date)
-
-    def test_date_ranges_by_category_noprod_daterange1_end_date(self):
-        """Test that we can recall date ranges by category."""
-        date_ranges_for_test_cat = self.well_record.date_ranges_by_category(
-            category=NO_PROD_IGNORE_SHUTIN
-        )
-        dr1 = date_ranges_for_test_cat[0]
-        self.assertEqual(date(2022, 12, 31), dr1.end_date)
-
-    def test_date_ranges_by_category_shutin(self):
-        """Test that we can recall date ranges by category."""
-        date_ranges_for_test_cat = self.well_record.date_ranges_by_category(
-            category=NO_PROD_BUT_SHUTIN_COUNTS
-        )
-        number_of_date_ranges = len(date_ranges_for_test_cat.date_ranges)
-        self.assertEqual(0, number_of_date_ranges)
 
 
 if __name__ == "__main__":
