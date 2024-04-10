@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from backend.well_records import WellRecord
+from backend.well_record import WellRecord
 
 
 class WellDataCollector(ABC):

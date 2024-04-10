@@ -3,7 +3,7 @@ from datetime import date, timedelta
 
 from backend.database import WellRecordDataGateway
 from backend.data_collector import WellDataCollector
-from backend.well_records import WellRecord
+from backend.well_record import WellRecord
 from backend.data_analyzer import WellGroup
 from backend.utils import validate_api_num
 

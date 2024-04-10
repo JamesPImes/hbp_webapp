@@ -6,8 +6,8 @@ from markupsafe import Markup
 from pymongo import MongoClient
 
 from backend.data_analyzer.well_group import WellGroup
-from backend.well_records.well_record import WellRecord
-from backend.well_records.standard_categories import (
+from backend.well_record.well_record import WellRecord
+from backend.well_record.standard_categories import (
     CATEGORY_DESCRIPTIONS,
 )
 from backend.data_collector.well_data_scraper import ScraperWellDataCollector

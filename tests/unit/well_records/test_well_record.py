@@ -1,7 +1,7 @@
 import unittest
 from datetime import date
 
-from backend.well_records import WellRecord, DateRange
+from backend.well_record import WellRecord, DateRange
 
 
 class TestWellRecord(unittest.TestCase):

@@ -3,7 +3,7 @@ Functions to summarize various objects into dicts that can be jsonified.
 """
 
 from backend.data_analyzer import WellGroup
-from backend.well_records import WellRecord, DateRange, DateRangeGroup
+from backend.well_record import WellRecord, DateRange, DateRangeGroup
 
 
 def summarize_date_range(

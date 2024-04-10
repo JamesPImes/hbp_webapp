@@ -3,7 +3,7 @@ from datetime import datetime, date
 
 from mongomock import MongoClient
 
-from backend.well_records import (
+from backend.well_record import (
     WellRecord,
     DateRange,
     NO_PROD_IGNORE_SHUTIN,

@@ -4,7 +4,7 @@ from datetime import date
 
 from backend.well_record_controller import WellRecordController
 from backend.database import WellRecordDataGateway
-from backend.well_records import WellRecord
+from backend.well_record import WellRecord
 from backend.data_collector import ScraperWellDataCollector
 from backend.data_collector.state_configs import STATE_CODE_SCRAPER_CONFIGS
 

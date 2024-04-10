@@ -3,7 +3,7 @@ import unittest.mock
 from datetime import date
 from pathlib import Path
 
-from backend.well_records import (
+from backend.well_record import (
     WellRecord,
     NO_PROD_IGNORE_SHUTIN,
     NO_PROD_BUT_SHUTIN_COUNTS,

@@ -2,7 +2,7 @@ import unittest
 from datetime import date
 
 from backend.data_analyzer import WellGroup
-from backend.well_records import WellRecord, DateRange
+from backend.well_record import WellRecord, DateRange
 
 
 class TestWellGroup(unittest.TestCase):

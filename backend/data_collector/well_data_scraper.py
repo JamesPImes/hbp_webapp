@@ -30,7 +30,7 @@ from typing import Callable
 import pandas as pd
 from production_analyzer import ProductionAnalyzer, DataLoader, HTMLLoader
 
-from backend.well_records import (
+from backend.well_record import (
     WellRecord,
     DateRange,
     DateRangeGroup,

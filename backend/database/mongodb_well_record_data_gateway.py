@@ -4,8 +4,8 @@ from typing import Callable
 
 from pymongo import MongoClient
 
-from backend.well_records import WellRecord
-from backend.well_records.date_range import _default_daterange_parse_func
+from backend.well_record import WellRecord
+from backend.well_record.date_range import _default_daterange_parse_func
 
 from .well_record_data_gateway import WellRecordDataGateway
 from .mongodb_manager import MongoDBManager

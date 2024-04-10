@@ -1,7 +1,7 @@
 import unittest
 from datetime import date
 
-from backend.well_records import DateRange, DateRangeGroup
+from backend.well_record import DateRange, DateRangeGroup
 
 
 class TestDateRange_basic(unittest.TestCase):
