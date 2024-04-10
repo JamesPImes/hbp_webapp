@@ -15,7 +15,7 @@ from backend.data_collector.state_configs import STATE_CODE_SCRAPER_CONFIGS
 from backend.database.mongodb_well_record_data_gateway import (
     MongoDBWellRecordDataGateway,
 )
-from backend.summarizer.summarizer import summarize_well_group, summarize_well_record
+from backend.summarize.summarize import summarize_well_group, summarize_well_record
 from backend.well_record_controller import WellRecordController
 from backend.utils.validate_api_num import validate_api_num
 from backend.metrics import MetricsController
