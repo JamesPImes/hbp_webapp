@@ -375,16 +375,23 @@ class TestMongoDBWellRecordManager_well_record_to_dict(unittest.TestCase):
         self.assertEqual(self.as_mongo_schema["well_name"], self.expected["well_name"])
 
     def test_first_date(self):
-        self.assertEqual(self.as_mongo_schema["first_date"], self.expected["first_date"])
+        self.assertEqual(
+            self.as_mongo_schema["first_date"], self.expected["first_date"]
+        )
 
     def test_last_date(self):
         self.assertEqual(self.as_mongo_schema["last_date"], self.expected["last_date"])
 
     def test_record_access_date(self):
-        self.assertEqual(self.as_mongo_schema["record_access_date"], self.expected["record_access_date"])
+        self.assertEqual(
+            self.as_mongo_schema["record_access_date"],
+            self.expected["record_access_date"],
+        )
 
     def test_date_ranges(self):
-        self.assertEqual(self.as_mongo_schema["date_ranges"], self.expected["date_ranges"])
+        self.assertEqual(
+            self.as_mongo_schema["date_ranges"], self.expected["date_ranges"]
+        )
 
 
 if __name__ == "__main__":
