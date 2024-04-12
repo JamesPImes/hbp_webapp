@@ -85,7 +85,11 @@ def create_app(config: Config = None) -> Flask:
     def get_well_summary(api_num) -> dict:
         well_record = get_well_record(api_num)
         return summarize_well_record(
-            well_record, category_descriptions=CATEGORY_DESCRIPTIONS, between=" :: "
+            well_record,
+            category_descriptions=CATEGORY_DESCRIPTIONS,
+            between=" :: ",
+            show_days=True,
+            show_months=True,
         )
 
     @app.route("/well_record/<api_num>", methods=["GET"])
