@@ -109,7 +109,7 @@ def summarize_well_record(
     if wr.last_date is not None:
         data_fields["Last Date of Production"] = f"{wr.last_date:%Y-%m-%d}"
     if wr.record_access_date is not None:
-        data_fields["Records Access Date"] = f"{wr.record_access_date:%Y-%m-%d}"
+        data_fields["Record Access Date"] = f"{wr.record_access_date:%Y-%m-%d}"
     for category in wr.registered_categories():
         drgroup = wr.date_ranges_by_category(category)
         drgroup_summary = summarize_date_range_group(
