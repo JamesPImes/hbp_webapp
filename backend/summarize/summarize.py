@@ -99,7 +99,7 @@ def summarize_well_record(
         "Well Name": "Unknown",
         "First Date of Production": "No production reported",
         "Last Date of Production": "No production reported",
-        "Records Access Date": "Unknown",
+        "Record Access Date": "Unknown",
         "Date Ranges": {},
     }
     if wr.well_name is not None:
