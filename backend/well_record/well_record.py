@@ -20,7 +20,7 @@ class WellRecord:
         self.first_date: date = first_date
         self.last_date: date = last_date
         self.record_access_date: date = record_access_date
-        self.date_ranges: dict[str:DateRangeGroup] = {}
+        self.date_ranges: dict[str, DateRangeGroup] = {}
 
     def register_date_range(self, date_range: DateRange, category: str) -> None:
         """
