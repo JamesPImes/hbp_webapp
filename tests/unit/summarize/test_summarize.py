@@ -21,14 +21,14 @@ class TestSummarizeDateRange(unittest.TestCase):
 
     def test_summarize_date_range_without_daysmonths(self):
         summary = summarize_date_range(
-            self.dr, between="_", show_days=False, show_months=False
+            self.dr, between_dates="_", show_days=False, show_months=False
         )
         expected = "2020-01-01_2020-12-31"
         self.assertEqual(expected, summary)
 
     def test_summarize_date_range_with_daysmonths(self):
         summary = summarize_date_range(
-            self.dr, between="_", show_days=True, show_months=True
+            self.dr, between_dates="_", show_days=True, show_months=True
         )
         expected = "2020-01-01_2020-12-31 (366 days; 12 calendar months)"
         self.assertEqual(expected, summary)
@@ -48,7 +48,7 @@ class TestSummarizeDateRangeGroup(unittest.TestCase):
 
     def test_summarize_drg_without_daysmonths(self):
         summary = summarize_date_range_group(
-            self.drg, between="_", show_days=False, show_months=False
+            self.drg, between_dates="_", show_days=False, show_months=False
         )
         dr0_expected = "2020-01-01_2020-12-31"
         dr1_expected = "2022-01-01_2022-06-30"
@@ -59,7 +59,7 @@ class TestSummarizeDateRangeGroup(unittest.TestCase):
 
     def test_summarize_drg_with_daysmonths(self):
         summary = summarize_date_range_group(
-            self.drg, between="_", show_days=True, show_months=True
+            self.drg, between_dates="_", show_days=True, show_months=True
         )
         dr0_expected = "2020-01-01_2020-12-31 (366 days; 12 calendar months)"
         dr1_expected = "2022-01-01_2022-06-30 (181 days; 6 calendar months)"
@@ -106,7 +106,7 @@ class TestSummarizeWellRecord(unittest.TestCase):
         summary = summarize_well_record(
             self.wr,
             category_descriptions=self.category_descriptions,
-            between="_",
+            between_dates="_",
             show_days=False,
             show_months=False,
         )
@@ -128,7 +128,7 @@ class TestSummarizeWellRecord(unittest.TestCase):
         summary = summarize_well_record(
             self.wr,
             category_descriptions=self.category_descriptions,
-            between="_",
+            between_dates="_",
             show_days=True,
             show_months=True,
         )
@@ -202,7 +202,7 @@ class TestSummarizeWellGroup(unittest.TestCase):
         summary = summarize_well_group(
             self.wg,
             category_descriptions=self.category_descriptions,
-            between="_",
+            between_dates="_",
             show_days=False,
             show_months=False,
         )
@@ -227,7 +227,7 @@ class TestSummarizeWellGroup(unittest.TestCase):
         summary = summarize_well_group(
             self.wg,
             category_descriptions=self.category_descriptions,
-            between="_",
+            between_dates="_",
             show_days=True,
             show_months=True,
         )

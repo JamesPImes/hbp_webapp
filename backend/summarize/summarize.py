@@ -7,21 +7,24 @@ from backend.well_record import WellRecord, DateRange, DateRangeGroup
 
 
 def summarize_date_range(
-    dr: DateRange, between="::", show_days: bool = False, show_months: bool = False
+    dr: DateRange,
+    between_dates="::",
+    show_days: bool = False,
+    show_months: bool = False,
 ) -> str:
     """
     Summarize a date range as a string.
 
     :param dr: The ``DateRange`` instance to summarize.
-    :param between: The string to go between the start/end date of each
-     date range. (Default: ``'::'``).
+    :param between_dates: The string to go between the start/end date of
+     each date range. (Default: ``'::'``).
     :param show_days: Whether to include the duration of each date range
      in days. (Default: ``False``)
     :param show_months: Whether to include the duration of each date
      range in calendar months. (Default: ``False``)
     :return:
     """
-    summary = f"{dr.start_date:%Y-%m-%d}{between}{dr.end_date:%Y-%m-%d}"
+    summary = f"{dr.start_date:%Y-%m-%d}{between_dates}{dr.end_date:%Y-%m-%d}"
     additional_info = []
     if show_days:
         additional_info.append(f"{dr.duration_in_days()} days")
@@ -34,7 +37,7 @@ def summarize_date_range(
 
 def summarize_date_range_group(
     drg: DateRangeGroup,
-    between="::",
+    between_dates="::",
     show_days: bool = False,
     show_months: bool = False,
 ) -> dict:
@@ -49,8 +52,8 @@ def summarize_date_range_group(
     the ``summarize_date_range()`` function.
 
     :param drg: The ``DateRangeGroup`` instance to summarize.
-    :param between: The string to go between the start/end date of each
-     date range. (Default: ``'::'``).
+    :param between_dates: The string to go between the start/end date of
+     each date range. (Default: ``'::'``).
     :param show_days: Whether to include the duration of each date range
      in days. (Default: ``False``)
     :param show_months: Whether to include the duration of each date
@@ -61,7 +64,7 @@ def summarize_date_range_group(
     summary = {
         "Longest (days)": longest,
         "Date Ranges": [
-            summarize_date_range(dr, between, show_days, show_months)
+            summarize_date_range(dr, between_dates, show_days, show_months)
             for dr in drg.date_ranges
         ],
     }
@@ -71,7 +74,7 @@ def summarize_date_range_group(
 def summarize_well_record(
     wr: WellRecord,
     category_descriptions: dict[str, str] = None,
-    between="::",
+    between_dates="::",
     show_days: bool = False,
     show_months: bool = False,
 ) -> dict:
@@ -84,8 +87,8 @@ def summarize_well_record(
      record; and whose values are a brief description of what that
      category means (e.g.,
      ``{'NO_PROD_IGNORE_SHUTIN'``: ``'No production (ignore shut-in)'}``).
-    :param between: The string to go between the start/end date of each
-     date range. (Default: ``'::'``).
+    :param between_dates: The string to go between the start/end date of
+     each date range. (Default: ``'::'``).
     :param show_days: Whether to include the duration of each date range
      in days. (Default: ``False``)
     :param show_months: Whether to include the duration of each date
@@ -113,7 +116,10 @@ def summarize_well_record(
     for category in wr.registered_categories():
         drgroup = wr.date_ranges_by_category(category)
         drgroup_summary = summarize_date_range_group(
-            drgroup, between=between, show_days=show_days, show_months=show_months
+            drgroup,
+            between_dates=between_dates,
+            show_days=show_days,
+            show_months=show_months,
         )
         drgroup_summary["Description"] = category_descriptions.get(category, category)
         data_fields["Date Ranges"][category] = drgroup_summary
@@ -123,7 +129,7 @@ def summarize_well_record(
 def summarize_well_group(
     wg: WellGroup,
     category_descriptions: dict[str, str] = None,
-    between="::",
+    between_dates="::",
     show_days: bool = False,
     show_months: bool = False,
 ) -> dict:
@@ -136,8 +142,8 @@ def summarize_well_group(
      record; and whose values are a brief description of what that
      category means (e.g.,
      ``{'NO_PROD_IGNORE_SHUTIN'``: ``'No production (ignore shut-in)'}``).
-    :param between: The string to go between the start/end date of each
-     date range. (Default: ``'::'``).
+    :param between_dates: The string to go between the start/end date of
+     each date range. (Default: ``'::'``).
     :param show_days: Whether to include the duration of each date range
      in days. (Default: ``False``)
     :param show_months: Whether to include the duration of each date
@@ -162,7 +168,7 @@ def summarize_well_group(
     for category, gaps in wg.researched_gaps.items():
         gaps_summary = summarize_date_range_group(
             gaps,
-            between=between,
+            between_dates=between_dates,
             show_days=show_days,
             show_months=show_months,
         )
@@ -172,7 +178,7 @@ def summarize_well_group(
         wrsummary = summarize_well_record(
             wr,
             category_descriptions=category_descriptions,
-            between=between,
+            between_dates=between_dates,
             show_days=show_days,
             show_months=show_months,
         )

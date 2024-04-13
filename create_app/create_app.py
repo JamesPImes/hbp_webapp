@@ -87,7 +87,7 @@ def create_app(config: Config = None) -> Flask:
         return summarize_well_record(
             well_record,
             category_descriptions=CATEGORY_DESCRIPTIONS,
-            between=" :: ",
+            between_dates=" :: ",
             show_days=True,
             show_months=True,
         )
@@ -117,7 +117,7 @@ def create_app(config: Config = None) -> Flask:
         summary = summarize_well_group(
             wg,
             category_descriptions=CATEGORY_DESCRIPTIONS,
-            between=" :: ",
+            between_dates=" :: ",
             show_days=True,
             show_months=True,
         )
