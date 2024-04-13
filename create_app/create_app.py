@@ -87,9 +87,9 @@ def create_app(config: Config = None) -> Flask:
         return summarize_well_record(
             well_record,
             category_descriptions=CATEGORY_DESCRIPTIONS,
-            between_dates=" :: ",
-            show_days=True,
-            show_months=True,
+            between_dates=config.BETWEEN_DATES,
+            show_days=config.SHOW_DAYS_IN_DATE_RANGES,
+            show_months=config.SHOW_MONTHS_IN_DATE_RANGES,
         )
 
     @app.route("/well_record/<api_num>", methods=["GET"])
@@ -117,9 +117,9 @@ def create_app(config: Config = None) -> Flask:
         summary = summarize_well_group(
             wg,
             category_descriptions=CATEGORY_DESCRIPTIONS,
-            between_dates=" :: ",
-            show_days=True,
-            show_months=True,
+            between_dates=config.BETWEEN_DATES,
+            show_days=config.SHOW_DAYS_IN_DATE_RANGES,
+            show_months=config.SHOW_MONTHS_IN_DATE_RANGES,
         )
         return summary
 

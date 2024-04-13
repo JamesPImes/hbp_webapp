@@ -13,3 +13,8 @@ class Config:
     DATABASE_NAME = os.environ.get(f"DATABASE_NAME")
     WELL_RECORDS_COLLECTION = os.environ.get(f"WELL_RECORDS_COLLECTION")
     MAX_RECORD_AGE_IN_DAYS = 27
+    # Configure how date ranges appear.
+    #   '01-01-2020 :: 12-31-2020 (366 days; 12 calendar months)'
+    BETWEEN_DATES = " :: "
+    SHOW_DAYS_IN_DATE_RANGES = True
+    SHOW_MONTHS_IN_DATE_RANGES = True
