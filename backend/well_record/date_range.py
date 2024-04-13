@@ -77,8 +77,8 @@ class DateRange:
         ``DateRange`` passed as ``other``.
         """
         return (
-            self.start_date - timedelta(days=days_tolerance) < other.start_date
-            and self.end_date + timedelta(days=days_tolerance) > other.end_date
+            self.start_date - timedelta(days=days_tolerance) <= other.start_date
+            and self.end_date + timedelta(days=days_tolerance) >= other.end_date
         )
 
     def merge_with(self, other: DateRange, days_tolerance: int = 1) -> list[DateRange]:

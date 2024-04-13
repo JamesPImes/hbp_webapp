@@ -58,6 +58,23 @@ class TestDateRange_comparissonsEncompasses(unittest.TestCase):
         self.assertFalse(self.dr2.encompasses(self.dr1))
 
 
+class TestDateRange_comparisonsEncompasses2(unittest.TestCase):
+
+
+    @classmethod
+    def setUpClass(cls):
+        cls.dr1 = DateRange(start_date=date(2020, 1, 1), end_date=date(2020, 12, 31))
+        cls.dr2 = DateRange(start_date=date(2020, 1, 1), end_date=date(2020, 6, 30))
+
+    def test_encompasses_true(self):
+        self.assertTrue(self.dr1.encompasses(self.dr2, days_tolerance=0))
+
+    def test_encompasses_false(self):
+        self.assertFalse(self.dr2.encompasses(self.dr1, days_tolerance=0))
+    pass
+
+
+
 class TestDateRange_merge(unittest.TestCase):
 
     @classmethod
