@@ -91,10 +91,9 @@ http://127.0.0.1:5000/well_group_report?api_nums=05-123-22710,05-123-21080,05-12
 
 ### Get production gaps and well data as JSON
 
-To get the same information 
-[in JSON format](_example_resources/sample_json.json)
-(plus additional info) in JSON format, use the `/well_group/` 
-endpoint, separating well numbers by comma:
+To get the same information (plus some additional detail) 
+[in JSON format](_example_resources/sample_json.json),
+use the `/well_group/` endpoint, separating well numbers by comma:
 
 ```
 http://127.0.0.1:5000/well_group/05-123-22710,05-123-21080,05-123-14244
