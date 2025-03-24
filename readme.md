@@ -67,7 +67,7 @@ unavoidable that the same acronym has two meanings here.)*
 ### Get a text report of all production gaps
 
 The main page will generate a 
-[static HTML report](_example_resources/sample_report.htm) 
+[static HTML report](https://htmlpreview.github.io/?https://github.com/JamesPImes/hbp_webapp/blob/master/_example_resources/sample_report.htm) 
 for the requested wells, showing the gaps in production (one version 
 where wells in "shut-in" status are considered to be producing even when
 they are not, and another version where the status of wells does not 
