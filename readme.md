@@ -41,3 +41,61 @@ the same period of time, a lease might terminate if that cessation lasts
 long enough. This web application analyzes the publicly available
 production records for the requested wells and reports any such periods
 of zero production and the duration of each.
+
+
+# To deploy locally...
+
+1) Clone this repo.
+2) Call `pip install -r requirements.txt`
+3) Copy `.env.example` to `.env` \*\*
+4) Install [MongoDB](https://www.mongodb.com/try/download/community). \*\*
+5) Run `app.py`
+
+\*\* Optionally, set up a MongoDB cloud server and configure the 
+`DATABASE_CONNECTION_STRING` field in the `.env` file.
+
+
+# Usage Guide and API Endpoints
+
+The production gaps for a collection of wells can be obtained as either
+a text-based report or in JSON format.
+
+*(Note that "API number" refers to a unique well ID that adheres to the 
+__American Petroleum Institute__'s format. It's unfortunate but 
+unavoidable that the same acronym has two meanings here.)*
+
+### Get a text report of all production gaps
+
+The main page will generate a 
+[static HTML report](_example_resources/sample_report.htm) 
+for the requested wells, showing the gaps in production (one version 
+where wells in "shut-in" status are considered to be producing even when
+they are not, and another version where the status of wells does not 
+matter).
+
+This report can be obtained in either of two ways:
+
+* __Option #1__ - Enter well numbers in the web app
+
+![](_example_resources/web_app_input.png)
+
+* __Option #2__ - Use the `/well_group_report?api_nums=<...>` 
+endpoint
+
+Well numbers are separated by comma, as in the following example (in a
+local deployment):
+
+```
+http://127.0.0.1:5000/well_group_report?api_nums=05-123-22710,05-123-21080,05-123-14244
+```
+
+### Get production gaps and well data as JSON
+
+To get the same information 
+[in JSON format](_example_resources/sample_json.json)
+(plus additional info) in JSON format, use the `/well_group/` 
+endpoint, separating well numbers by comma:
+
+```
+http://127.0.0.1:5000/well_group/05-123-22710,05-123-21080,05-123-14244
+```
