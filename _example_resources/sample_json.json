@@ -1,0 +1,134 @@
+{
+  "API Numbers": [
+    "05-123-22710",
+    "05-123-21080",
+    "05-123-14244"
+  ],
+  "Earliest Reported Date": "1999-01-01",
+  "Latest Reported Date": "2025-01-31",
+  "Researched Gaps": {
+    "NO_PROD_BUT_SHUTIN_COUNTS": {
+      "Date Ranges": [],
+      "Description": "No production (shut-in counts as production)",
+      "Longest (days)": 0
+    },
+    "NO_PROD_IGNORE_SHUTIN": {
+      "Date Ranges": [
+        "2016-06-01 :: 2016-06-30 (30 days; 1 calendar months)",
+        "2017-09-01 :: 2017-09-30 (30 days; 1 calendar months)",
+        "2017-12-01 :: 2018-01-31 (62 days; 2 calendar months)",
+        "2018-10-01 :: 2018-10-31 (31 days; 1 calendar months)",
+        "2019-06-01 :: 2020-12-31 (580 days; 19 calendar months)",
+        "2021-01-01 :: 2021-02-28 (59 days; 2 calendar months)",
+        "2021-04-01 :: 2023-01-31 (671 days; 22 calendar months)",
+        "2023-03-01 :: 2025-01-31 (703 days; 23 calendar months)"
+      ],
+      "Description": "No production (ignore shut-in)",
+      "Longest (days)": 703
+    }
+  },
+  "Well Count": 3,
+  "Well Records": [
+    {
+      "API Number": "05-123-22710",
+      "Date Ranges": {
+        "NO_PROD_BUT_SHUTIN_COUNTS": {
+          "Date Ranges": [
+            "2005-03-01 :: 2005-04-30 (61 days; 2 calendar months)",
+            "1999-01-01 :: 2005-02-28 (2251 days; 74 calendar months)"
+          ],
+          "Description": "No production (shut-in counts as production)",
+          "Longest (days)": 2251
+        },
+        "NO_PROD_IGNORE_SHUTIN": {
+          "Date Ranges": [
+            "2005-03-01 :: 2005-04-30 (61 days; 2 calendar months)",
+            "2008-06-01 :: 2008-08-31 (92 days; 3 calendar months)",
+            "2009-01-01 :: 2009-01-31 (31 days; 1 calendar months)",
+            "2009-05-01 :: 2009-05-31 (31 days; 1 calendar months)",
+            "2009-08-01 :: 2009-08-31 (31 days; 1 calendar months)",
+            "2012-01-01 :: 2012-05-31 (152 days; 5 calendar months)",
+            "2012-07-01 :: 2012-07-31 (31 days; 1 calendar months)",
+            "2013-06-01 :: 2013-06-30 (30 days; 1 calendar months)",
+            "2014-04-01 :: 2014-04-30 (30 days; 1 calendar months)",
+            "2014-09-01 :: 2014-11-30 (91 days; 3 calendar months)",
+            "2016-06-01 :: 2016-06-30 (30 days; 1 calendar months)",
+            "2017-09-01 :: 2017-09-30 (30 days; 1 calendar months)",
+            "2017-12-01 :: 2018-01-31 (62 days; 2 calendar months)",
+            "2018-10-01 :: 2018-10-31 (31 days; 1 calendar months)",
+            "2019-06-01 :: 2021-02-28 (639 days; 21 calendar months)",
+            "2021-04-01 :: 2023-01-31 (671 days; 22 calendar months)",
+            "2023-03-01 :: 2025-01-31 (703 days; 23 calendar months)",
+            "1999-01-01 :: 2005-02-28 (2251 days; 74 calendar months)"
+          ],
+          "Description": "No production (ignore shut-in)",
+          "Longest (days)": 2251
+        }
+      },
+      "First Date of Production": "2005-03-01",
+      "Last Date of Production": "2025-01-31",
+      "Record Access Date": "2025-03-24",
+      "Well Name": "CECIL-31-2"
+    },
+    {
+      "API Number": "05-123-21080",
+      "Date Ranges": {
+        "NO_PROD_BUT_SHUTIN_COUNTS": {
+          "Date Ranges": [
+            "2007-05-01 :: 2007-05-31 (31 days; 1 calendar months)",
+            "2018-11-01 :: 2018-11-30 (30 days; 1 calendar months)",
+            "2020-09-01 :: 2020-12-31 (122 days; 4 calendar months)",
+            "1999-01-01 :: 2004-08-31 (2070 days; 68 calendar months)",
+            "2021-01-01 :: 2025-01-31 (1492 days; 49 calendar months)"
+          ],
+          "Description": "No production (shut-in counts as production)",
+          "Longest (days)": 2070
+        },
+        "NO_PROD_IGNORE_SHUTIN": {
+          "Date Ranges": [
+            "2007-05-01 :: 2007-05-31 (31 days; 1 calendar months)",
+            "2014-04-01 :: 2014-04-30 (30 days; 1 calendar months)",
+            "2014-06-01 :: 2014-06-30 (30 days; 1 calendar months)",
+            "2015-08-01 :: 2015-11-30 (122 days; 4 calendar months)",
+            "2016-01-01 :: 2016-06-30 (182 days; 6 calendar months)",
+            "2016-10-01 :: 2017-02-28 (151 days; 5 calendar months)",
+            "2017-06-01 :: 2020-12-31 (1310 days; 43 calendar months)",
+            "1999-01-01 :: 2004-08-31 (2070 days; 68 calendar months)",
+            "2021-01-01 :: 2025-01-31 (1492 days; 49 calendar months)"
+          ],
+          "Description": "No production (ignore shut-in)",
+          "Longest (days)": 2070
+        }
+      },
+      "First Date of Production": "2004-09-01",
+      "Last Date of Production": "2020-12-31",
+      "Record Access Date": "2025-03-24",
+      "Well Name": "PERKINS-12-22"
+    },
+    {
+      "API Number": "05-123-14244",
+      "Date Ranges": {
+        "NO_PROD_BUT_SHUTIN_COUNTS": {
+          "Date Ranges": [
+            "2015-08-01 :: 2015-08-31 (31 days; 1 calendar months)",
+            "2015-09-01 :: 2025-01-31 (3441 days; 113 calendar months)"
+          ],
+          "Description": "No production (shut-in counts as production)",
+          "Longest (days)": 3441
+        },
+        "NO_PROD_IGNORE_SHUTIN": {
+          "Date Ranges": [
+            "2015-08-01 :: 2015-08-31 (31 days; 1 calendar months)",
+            "2015-09-01 :: 2025-01-31 (3441 days; 113 calendar months)"
+          ],
+          "Description": "No production (ignore shut-in)",
+          "Longest (days)": 3441
+        }
+      },
+      "First Date of Production": "1999-01-01",
+      "Last Date of Production": "2015-08-31",
+      "Record Access Date": "2025-03-24",
+      "Well Name": "PESCHEL-14-20"
+    }
+  ]
+}
