@@ -1,0 +1,21 @@
+services:
+  web:
+    build: .
+    command: python -u app.py
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    links:
+      - db
+    env_file:
+      - .dockerenv
+  db:
+    # The database contains only cached public records, so no meaningful secrets here.
+    image: mongo:latest
+    hostname: hbp_webapp_mongodb
+    environment:
+      - DATABASE_NAME=hbp_webapp
+      - WELL_RECORDS_COLLECTION=well_records
+    ports:
+      - 27017:27017

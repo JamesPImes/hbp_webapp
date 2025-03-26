@@ -1,0 +1,14 @@
+
+# This env file is used only for the Docker build. Even if you configure
+# a separate .env file, this will replace it inside the Docker image.
+
+# Currently, only MongoDB is supported.
+DATABASE_PROGRAM=MongoDB
+
+# Database contains only cached public records, so no meaningful secrets here.
+DATABASE_CONNECTION_STRING=mongodb://hbp_webapp_mongodb:27017/
+DATABASE_NAME=hbp_webapp
+WELL_RECORDS_COLLECTION=well_records
+
+HOST=0.0.0.0
+PORT=5000
