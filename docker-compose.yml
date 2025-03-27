@@ -1,7 +1,7 @@
 services:
   web:
     build: .
-    command: python -u app.py
+    command: gunicorn --bind 0.0.0.0:5000 app:app
     ports:
       - "5000:5000"
     volumes:
@@ -18,4 +18,4 @@ services:
       - DATABASE_NAME=hbp_webapp
       - WELL_RECORDS_COLLECTION=well_records
     ports:
-      - 27017:27017
+      - "27017:27017"
