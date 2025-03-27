@@ -45,14 +45,33 @@ of zero production and the duration of each.
 
 # To deploy locally...
 
-1) Clone this repo.
-2) Call `pip install -r requirements.txt`
-3) Copy `.env.example` to `.env` \*\*
-4) Install [MongoDB](https://www.mongodb.com/try/download/community). \*\*
+### Option 1 - Docker
+
+1) `git clone <this repo>`
+2) `docker-compose up --build`
+
+This option does not require installing MongoDB locally or setting up a 
+cloud instance, but it becomes tricky to have the database persist if 
+the Docker image needs to be rebuilt. That said, the database is only 
+used to cache of free public records anyway, so that might not be an 
+issue.
+
+### Option 2
+
+If you want more control over the database (e.g., if you want to use a 
+cloud instance of MongoDB; or if you want easier persistence), you might
+want to go this route:
+
+1) `git clone <this repo>`
+2) `pip install -r requirements.txt`
+3) Locally install [MongoDB](https://www.mongodb.com/try/download/community)
+or set up a cloud instance. \*\*
+4) Copy `.env.example` to `.env` and configure however you want. \*\*
 5) Run `app.py`
 
-\*\* Optionally, set up a MongoDB cloud server and configure the 
-`DATABASE_CONNECTION_STRING` field in the `.env` file.
+\*\* The default `.env.example` is configured for a very basic, 
+unsecured local database. In production, we would want to change `.env`
+to configure MongoDB Cloud, etc.
 
 
 # Usage Guide and API Endpoints
